@@ -1,0 +1,54 @@
+﻿@page "/patients"
+@layout ProtectedLayout
+@inject HttpClient Http
+
+<div class="page-header">
+    <h1>🧑 Patienten</h1>
+    <p>Alle registrierten Patienten</p>
+</div>
+
+@if (patients == null)
+{
+    <p>Lade...</p>
+}
+else
+{
+    <div class="section-title">@patients.Count Patienten gefunden</div>
+
+    @foreach (var p in patients)
+    {
+        <div class="patient-card">
+            <div class="patient-avatar">
+                @(p.FirstName[0].ToString().ToUpper())@(p.LastName[0].ToString().ToUpper())
+            </div>
+            <div>
+                <div class="patient-name">@p.FirstName @p.LastName</div>
+                <div class="patient-svn">SVN: @p.SocialSecurityNumber</div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    List<PatientDto>? patients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            patients = await Http.GetFromJsonAsync<List<PatientDto>>(
+                "http://localhost:5264/api/patients");
+        }
+        catch
+        {
+            patients = new();
+        }
+    }
+
+    class PatientDto
+    {
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string SocialSecurityNumber { get; set; } = "";
+    }
+}

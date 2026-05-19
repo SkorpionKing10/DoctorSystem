@@ -1,0 +1,96 @@
+﻿@page "/admin/patient"
+@rendermode InteractiveServer
+@using Frontend.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h1>Patientenverwaltung</h1>
+
+<div class="top-bar">
+    <button class="new-btn" @onclick="CreateNew">
+        ➕ Neuer Patient
+    </button>
+</div>
+
+@if (patients == null)
+{
+    <p>Laden...</p>
+}
+else if (!patients.Any())
+{
+    <p>Keine Patienten gefunden.</p>
+}
+else
+{
+    <table class="patient-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>SV-Nummer</th>
+                <th>Geburtsdatum</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var p in patients)
+            {
+                <tr>
+                    <td>@p.Id</td>
+                    <td>@p.FirstName</td>
+                    <td>@p.LastName</td>
+                    <td>@p.SocialSecurityNumber</td>
+                    <td>@p.BirthDate.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        <button class="edit-btn"
+                                @onclick="() => EditPatient(p.Id)">
+                            ✏️ Bearbeiten
+                        </button>
+
+                        <button class="delete-btn"
+                                @onclick="() => DeletePatient(p.Id)">
+                            🗑 Löschen
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    List<Patient>? patients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patients = await Http.GetFromJsonAsync<List<Patient>>(
+            "http://localhost:5264/api/patients");
+    }
+
+    void CreateNew()
+    {
+        Nav.NavigateTo("/admin/patient/new");
+    }
+
+    void EditPatient(int id)
+    {
+        Nav.NavigateTo($"/admin/patient/edit/{id}");
+    }
+
+    async Task DeletePatient(int id)
+    {
+        var result = await Http.DeleteAsync($"http://localhost:5264/api/patients/{id}");
+
+        if (result.IsSuccessStatusCode)
+        {
+            var patient = patients?
+                .FirstOrDefault(x => x.Id == id);
+
+            if (patient != null)
+                patients!.Remove(patient);
+        }
+    }
+}

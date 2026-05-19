@@ -1,0 +1,103 @@
+﻿@page "/admin/users"
+@layout ProtectedLayout
+@inject HttpClient Http
+@inject NavigationManager Nav
+@using Frontend.Services
+@using Frontend.Models
+@inject AuthService Auth
+
+<div class="page-header">
+    <h1>👥 User verwalten</h1>
+    <p>Alle registrierten Benutzer</p>
+</div>
+
+@if (!Auth.IsAdmin)
+{
+    <p style="color:red">Kein Zugriff.</p>
+}
+else if (users == null)
+{
+    <p>Lade...</p>
+}
+else
+{
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="section-title">@users.Count Benutzer</div>
+        <button class="appt-badge" @onclick="AddUser">
+            ➕ Benutzer hinzufügen
+        </button>
+    </div>
+
+    @foreach (var u in users)
+    {
+        <div class="patient-card">
+
+            <div class="patient-avatar">
+                @u.Username?.Substring(0, 1).ToUpper()
+            </div>
+
+            <div style="flex:1">
+                <div class="patient-name">@u.Username</div>
+
+                <div class="patient-svn">
+                    Rolle: @u.Role ·
+                    @(u.IsActive ? "Aktiv" : "Inaktiv")
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+
+                <button class="appt-badge" @onclick="() => EditUser(u.Id)">
+                    ✏️ Bearbeiten
+                </button>
+
+                <button class="appt-badge cancelled" @onclick="() => DeleteUser(u.Id)">
+                    🗑 Löschen
+                </button>
+
+            </div>
+        </div>
+    }
+}
+
+@code {
+
+    List<UserDto>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = await Http.GetFromJsonAsync<List<UserDto>>(
+                "http://localhost:5264/api/users");
+        }
+        catch
+        {
+            users = new List<UserDto>();
+        }
+    }
+
+    void AddUser()
+    {
+        Nav.NavigateTo("/admin/users/add");
+    }
+
+    void EditUser(int id)
+    {
+        Nav.NavigateTo($"/admin/users/edit/{id}");
+    }
+
+    async Task DeleteUser(int id)
+    {
+        await Http.DeleteAsync($"http://localhost:5264/api/users/{id}");
+        users?.RemoveAll(x => x.Id == id);
+    }
+
+    public class UserDto
+    {
+        public int Id { get; set; }
+        public string Username { get; set; } = "";
+        public string Role { get; set; } = "";
+        public bool IsActive { get; set; }
+    }
+}

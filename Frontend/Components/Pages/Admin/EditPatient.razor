@@ -1,0 +1,79 @@
+﻿@page "/admin/patient/edit/{Id:int}"
+@rendermode InteractiveServer
+@using Frontend.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h1>Patient bearbeiten</h1>
+
+@if (patient == null)
+{
+    <p>Laden...</p>
+}
+else
+{
+    <div class="form-container">
+
+        <div class="form-group">
+            <label>Vorname</label>
+            <input @bind="patient.FirstName" />
+        </div>
+
+        <div class="form-group">
+            <label>Nachname</label>
+            <input @bind="patient.LastName" />
+        </div>
+
+        <div class="form-group">
+            <label>SV-Nummer</label>
+            <input @bind="patient.SocialSecurityNumber" />
+        </div>
+
+        <div class="form-group">
+            <label>Geburtsdatum</label>
+            <input type="date" @bind="patient.BirthDate" />
+        </div>
+
+        <div class="button-row">
+            <button class="save-btn" @onclick="Save">
+                💾 Änderungen speichern
+            </button>
+
+            <button class="cancel-btn" @onclick="Cancel">
+                ❌ Abbrechen
+            </button>
+        </div>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    Patient? patient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patient = await Http.GetFromJsonAsync<Patient>(
+            $"http://localhost:5264/api/patients/{Id}");
+    }
+
+    async Task Save()
+    {
+        var result = await Http.PutAsJsonAsync(
+            $"http://localhost:5264api/patients/{Id}",
+            patient);
+
+        if (result.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo("/admin/patient");
+        }
+    }
+
+    void Cancel()
+    {
+        Nav.NavigateTo("/admin/patient");
+    }
+}

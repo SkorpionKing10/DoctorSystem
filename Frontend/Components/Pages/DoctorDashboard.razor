@@ -1,0 +1,71 @@
+﻿@page "/doctor"
+@layout ProtectedLayout
+@using Frontend.Services
+@using Frontend.Models
+@inject ApiService Api
+@inject AuthService Auth
+
+<div class="page-header">
+    <h1>🩺 Doctor Dashboard</h1>
+    <p>Willkommen, <b>@Auth.Username</b></p>
+</div>
+
+@if (appointments == null)
+{
+    <p>Lade...</p>
+}
+else
+{
+    <div class="stats">
+        <div class="stat-card">
+            <div class="label">Termine gesamt</div>
+            <div class="value">@appointments.Count</div>
+        </div>
+        <div class="stat-card danger">
+            <div class="label">Abgesagt</div>
+            <div class="value">@appointments.Count(a => a.IsCancelled)</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Aktiv</div>
+            <div class="value">@appointments.Count(a => !a.IsCancelled)</div>
+        </div>
+    </div>
+
+    <div class="section-title">Alle Termine</div>
+
+    @foreach (var a in appointments)
+    {
+        <div class="appointment-card">
+            <div class="appt-avatar">
+                @(a.PatientName != null && a.PatientName.Length >= 2
+                    ? a.PatientName.Substring(0, 2).ToUpper()
+                    : "?")
+            </div>
+            <div class="appt-info">
+                <div class="appt-name">@(a.PatientName ?? "Unbekannt")</div>
+                <div class="appt-detail">
+                    @a.Date.ToShortDateString() · @a.Time
+                </div>
+            </div>
+            <span class="appt-badge @(a.IsCancelled ? "cancelled" : "")">
+                @(a.IsCancelled ? "Abgesagt" : "Bestätigt")
+            </span>
+        </div>
+    }
+}
+
+@code {
+    List<AppointmentDto>? appointments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            appointments = await Api.GetAppointments();
+        }
+        catch
+        {
+            appointments = new();
+        }
+    }
+}

@@ -1,0 +1,166 @@
+﻿@page "/admin/appointments/new"
+@layout ProtectedLayout
+@inject HttpClient Http
+@using Frontend.Services;
+@inject AuthService Auth
+
+<div class="page-header">
+    <h1>➕ Termin vergeben</h1>
+    <p>Neuen Termin erstellen</p>
+</div>
+
+@if (!Auth.IsAdmin)
+{
+    <p style="color:red">Kein Zugriff.</p>
+}
+else
+{
+    <div class="login-box" style="width:100%; max-width:500px;">
+
+        <label>Patient</label>
+        <select @bind="selectedPatientId"
+                style="padding:10px; border-radius:8px; border:1px solid #ccc;">
+            <option value="0">-- Patient wählen --</option>
+            @foreach (var p in patients)
+            {
+                <option value="@p.Id">@p.FirstName @p.LastName</option>
+            }
+        </select>
+
+        <label>Sprechstunde</label>
+        <select @bind="selectedConsultationHourId"
+                @bind:after="LoadFreeSlots"
+                style="padding:10px; border-radius:8px; border:1px solid #ccc;">
+            <option value="0">-- Sprechstunde wählen --</option>
+            @foreach (var c in consultationHours)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+
+        <label>Datum</label>
+        <input type="date"
+               @bind="selectedDate"
+               @bind:after="LoadFreeSlots" />
+
+        @if (freeSlots.Any())
+        {
+            <label>Freie Zeitslots</label>
+            <select @bind="selectedTime"
+                    style="padding:10px; border-radius:8px; border:1px solid #ccc;">
+                <option value="">-- Zeit wählen --</option>
+                @foreach (var s in freeSlots)
+                {
+                    <option value="@s">@s</option>
+                }
+            </select>
+        }
+        else if (selectedConsultationHourId > 0)
+        {
+            <p style="color:#888; font-size:13px;">
+                Keine freien Slots an diesem Tag.
+            </p>
+        }
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <p style="color:@(success ? "green" : "red"); font-size:13px;">
+                @message
+            </p>
+        }
+
+        <button @onclick="BookAppointment">✅ Termin buchen</button>
+    </div>
+}
+
+@code {
+    List<PatientDto> patients = new();
+    List<ConsultationHourDto> consultationHours = new();
+    List<string> freeSlots = new();
+
+    int selectedPatientId = 0;
+    int selectedConsultationHourId = 0;
+    DateTime selectedDate = DateTime.Today;
+    string selectedTime = "";
+    string message = "";
+    bool success = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            patients = await Http.GetFromJsonAsync<List<PatientDto>>(
+                "http://localhost:5264/api/patients") ?? new();
+            consultationHours = await Http.GetFromJsonAsync<List<ConsultationHourDto>>(
+                "http://localhost:5264/api/consultation-hours") ?? new();
+        }
+        catch { }
+    }
+
+    async Task LoadFreeSlots()
+    {
+        if (selectedConsultationHourId == 0) return;
+        try
+        {
+            var dateStr = selectedDate.ToString("yyyy-MM-dd");
+            freeSlots = await Http.GetFromJsonAsync<List<string>>(
+                $"http://localhost:5264/api/appointments/free-slots/{selectedConsultationHourId}/{dateStr}")
+                ?? new();
+        }
+        catch
+        {
+            freeSlots = new();
+        }
+    }
+
+    async Task BookAppointment()
+    {
+        if (selectedPatientId == 0 || selectedConsultationHourId == 0
+            || string.IsNullOrEmpty(selectedTime))
+        {
+            message = "Bitte alle Felder ausfüllen.";
+            success = false;
+            return;
+        }
+
+        var dto = new
+        {
+            PatientId = selectedPatientId,
+            ConsultationHourId = selectedConsultationHourId,
+            Date = selectedDate,
+            Time = TimeSpan.Parse(selectedTime)
+        };
+
+        var response = await Http.PostAsJsonAsync(
+            "http://localhost:5264/api/appointments", dto);
+
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Termin erfolgreich gebucht!";
+            success = true;
+            selectedTime = "";
+            await LoadFreeSlots();
+        }
+        else
+        {
+            var err = await response.Content.ReadAsStringAsync();
+            message = err.Contains("Zeitslot")
+                ? "Dieser Zeitslot ist bereits vergeben."
+                : "Fehler beim Buchen.";
+            success = false;
+        }
+    }
+
+    class PatientDto
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+    }
+
+    class ConsultationHourDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+}

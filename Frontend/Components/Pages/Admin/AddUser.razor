@@ -1,0 +1,184 @@
+﻿@page "/admin/users/add"
+@layout ProtectedLayout
+
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+@using Frontend.Services
+@using System.Net
+
+@inject AuthService Auth
+
+<div class="page-header">
+    <h1>➕ Benutzer hinzufügen</h1>
+    <p>Neuen Benutzer anlegen</p>
+</div>
+
+@if (!Auth.IsAdmin)
+{
+    <p style="color:red;">Kein Zugriff.</p>
+}
+else
+{
+    <div class="form-card">
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">
+                ⚠️ @errorMessage
+            </div>
+        }
+
+        @if (successMessage)
+        {
+            <div class="alert alert-success">
+                ✅ Benutzer wurde erfolgreich erstellt.
+            </div>
+        }
+
+        <div class="form-group">
+            <label>Benutzername</label>
+
+            <input class="form-input"
+                   @bind="newUser.Username"
+                   placeholder="Benutzername eingeben" />
+        </div>
+
+        <div class="form-group">
+            <label>Passwort</label>
+
+            <input class="form-input"
+                   type="password"
+                   @bind="newUser.Password"
+                   placeholder="Passwort eingeben" />
+        </div>
+
+        <div class="form-group">
+            <label>Rolle</label>
+
+            <select class="form-input"
+                    @bind="newUser.Role">
+
+                <option value="Staff">Staff</option>
+                <option value="Admin">Admin</option>
+                <option value="Doctor">Doctor</option>
+
+            </select>
+        </div>
+
+        <div class="checkbox-row">
+
+            <input type="checkbox"
+                   id="isActive"
+                   @bind="newUser.IsActive" />
+
+            <label for="isActive">
+                Aktiv
+            </label>
+
+        </div>
+
+        <div class="form-actions">
+
+            <button class="btn-save"
+                    @onclick="SaveUser"
+                    disabled="@isSaving">
+
+                @(isSaving ? "Speichern..." : "💾 Speichern")
+
+            </button>
+
+            <button class="btn-cancel"
+                    @onclick="Cancel">
+
+                ✖ Abbrechen
+
+            </button>
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    CreateUserDto newUser = new()
+    {
+        IsActive = true,
+        Role = "Staff"
+    };
+
+    string? errorMessage;
+
+    bool successMessage = false;
+
+    bool isSaving = false;
+
+    async Task SaveUser()
+    {
+        errorMessage = null;
+        successMessage = false;
+
+        if (string.IsNullOrWhiteSpace(newUser.Username))
+        {
+            errorMessage = "Benutzername darf nicht leer sein.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newUser.Password))
+        {
+            errorMessage = "Passwort darf nicht leer sein.";
+            return;
+        }
+
+        isSaving = true;
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync(
+                "http://localhost:5264/api/users",
+                newUser);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = true;
+
+                await Task.Delay(1000);
+
+                Nav.NavigateTo("/admin/users");
+            }
+            else if (response.StatusCode == HttpStatusCode.Conflict)
+            {
+                errorMessage = "Benutzername ist bereits vergeben.";
+            }
+            else
+            {
+                errorMessage = $"Fehler: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Netzwerkfehler: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    void Cancel()
+    {
+        Nav.NavigateTo("/admin/users");
+    }
+
+    public class CreateUserDto
+    {
+        public string Username { get; set; } = "";
+
+        public string Password { get; set; } = "";
+
+        public string Role { get; set; } = "Staff";
+
+        public bool IsActive { get; set; } = true;
+    }
+}

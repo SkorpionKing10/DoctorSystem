@@ -1,0 +1,84 @@
+@Backend_HostAddress = http://localhost:5264
+
+### ============================================================
+### PATIENTS
+### ============================================================
+
+GET {{Backend_HostAddress}}/api/patients
+Accept: application/json
+
+###
+
+POST {{Backend_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "firstName": "Valentin",
+  "lastName": "Aumayr",
+  "socialSecurityNumber": "SV290508",
+  "birthDate": "2008-05-29"
+}
+
+###
+
+### ============================================================
+### DOCTORS
+### ============================================================
+
+GET {{Backend_HostAddress}}/api/doctors
+Accept: application/json
+
+###
+
+POST {{Backend_HostAddress}}/api/doctors
+Content-Type: application/json
+
+{
+  "firstName": "Anna",
+  "lastName": "Huber",
+  "title": "Dr."
+}
+
+###
+
+### ============================================================
+### CONSULTATION HOURS
+### ============================================================
+
+GET {{Backend_HostAddress}}/api/consultation-hours
+Accept: application/json
+
+###
+
+POST {{Backend_HostAddress}}/api/consultation-hours
+Content-Type: application/json
+
+{
+  "name": "Morning Orthopedics",
+  "doctorId": 1,
+  "specialtyId": 1,
+  "startTime": "08:00:00",
+  "endTime": "12:00:00",
+  "isActive": true
+}
+
+###
+
+### ============================================================
+### APPOINTMENTS
+### ============================================================
+
+GET {{Backend_HostAddress}}/api/appointments
+Accept: application/json
+
+###
+
+POST {{Backend_HostAddress}}/api/appointments/book?patientId=1&consultationHourId=1
+
+###
+
+POST {{Backend_HostAddress}}/api/appointments/cancel/1
+
+###
+
+DELETE {{Backend_HostAddress}}/api/appointments/1

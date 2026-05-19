@@ -1,0 +1,634 @@
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+a, .btn-link {
+    color: #006bb7;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+h1:focus {
+    outline: none;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid #e50000;
+}
+
+.validation-message {
+    color: #e50000;
+}
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbmsiPjwvc3ZnPg==) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred."
+    }
+
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+/* ========================
+   MAIN LAYOUT
+   ======================== */
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ========================
+   SIDEBAR
+   ======================== */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #0b2c6b, #240046);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 4px 0;
+}
+
+    .sidebar-logo h2 {
+        margin: 0;
+        font-size: 18px;
+        color: white;
+        font-weight: 600;
+    }
+
+.sidebar-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+    margin: 4px 0 12px 0;
+}
+
+.menu-item {
+    color: white;
+    text-decoration: none;
+    padding: 11px 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+    .menu-item:hover {
+        background: rgba(255,255,255,0.18);
+        color: white;
+    }
+
+    .menu-item.active {
+        background: rgba(255,255,255,0.25) !important;
+        font-weight: 600;
+    }
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.logout-btn {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border: none;
+    padding: 11px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+    .logout-btn:hover {
+        background: rgba(192,57,43,0.4);
+    }
+
+/* ========================
+   CONTENT AREA
+   ======================== */
+.content {
+    flex: 1;
+    background: #f4f6f9;
+    padding: 28px 32px;
+    overflow-y: auto;
+}
+
+/* ========================
+   LOGIN
+   ======================== */
+.login-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0b2c6b, #240046);
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 320px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+    .login-box h1 {
+        margin: 0 0 10px 0;
+        color: #0b2c6b;
+    }
+
+    .login-box input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .login-box button {
+        padding: 10px;
+        background: #0b2c6b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.2s;
+    }
+
+        .login-box button:hover {
+            background: #240046;
+        }
+
+/* ========================
+   PAGE HEADER
+   ======================== */
+.page-header {
+    margin-bottom: 28px;
+}
+
+    .page-header h1 {
+        font-size: 26px;
+        color: #0b2c6b;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .page-header p {
+        font-size: 14px;
+        color: #666;
+        margin-top: 4px;
+    }
+
+/* ========================
+   STAT CARDS
+   ======================== */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border-left: 4px solid #0b2c6b;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+    .stat-card .label {
+        font-size: 11px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card .value {
+        font-size: 28px;
+        font-weight: 600;
+        color: #0b2c6b;
+        margin-top: 6px;
+    }
+
+    .stat-card.danger {
+        border-left-color: #c0392b;
+    }
+
+        .stat-card.danger .value {
+            color: #c0392b;
+        }
+
+/* ========================
+   SECTION TITLE
+   ======================== */
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+/* ========================
+   APPOINTMENT CARDS
+   ======================== */
+.appointment-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .appointment-card:hover {
+        border-color: #0b2c6b;
+        box-shadow: 0 4px 12px rgba(11,44,107,0.1);
+    }
+
+.appt-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b2c6b, #240046);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.appt-info {
+    flex: 1;
+}
+
+.appt-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.appt-detail {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.appt-badge {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #e8f0fe;
+    color: #0b2c6b;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+    .appt-badge.cancelled {
+        background: #fce8e8;
+        color: #c0392b;
+    }
+
+/* ========================
+   PATIENT CARDS
+   ======================== */
+.patient-card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #eee;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+    .patient-card:hover {
+        box-shadow: 0 6px 20px rgba(11,44,107,0.12);
+        transform: translateY(-1px);
+    }
+
+.patient-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b2c6b, #240046);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.patient-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0b2c6b;
+}
+
+.patient-svn {
+    font-size: 12px;
+    color: #888;
+    margin-top: 3px;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+/* =========================================
+   FORM CONTAINER
+========================================= */
+.form-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border: 1px solid #e8ebf0;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    max-width: 520px;
+}
+
+/* =========================================
+   FORM GROUP
+========================================= */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+/* =========================================
+   INPUTS
+========================================= */
+.form-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #fff;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+    .form-input:focus {
+        border-color: #0b2c6b;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(11,44,107,0.12);
+    }
+
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+
+/* =========================================
+   SELECT
+========================================= */
+select.form-input {
+    cursor: pointer;
+}
+
+/* =========================================
+   CHECKBOX ROW
+========================================= */
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+    .checkbox-row label {
+        font-size: 14px;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #0b2c6b;
+        cursor: pointer;
+    }
+
+/* =========================================
+   BUTTON AREA
+========================================= */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* =========================================
+   PRIMARY BUTTON
+========================================= */
+.btn-save {
+    border: none;
+    background: linear-gradient(135deg, #0b2c6b, #240046);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .btn-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(11,44,107,0.25);
+    }
+
+    .btn-save:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+/* =========================================
+   CANCEL BUTTON
+========================================= */
+.btn-cancel {
+    border: none;
+    background: #f3f4f6;
+    color: #374151;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+/* =========================================
+   ALERTS
+========================================= */
+.alert {
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.alert-error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #be123c;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+@media (max-width: 700px) {
+
+    .content {
+        padding: 18px;
+    }
+
+    .form-card {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        width: 100%;
+    }
+}
+
+.top-bar {
+    margin-bottom: 20px;
+}
+
+.patient-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+    .patient-table th,
+    .patient-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+    }
+
+    .patient-table th {
+        background: #f5f5f5;
+        text-align: left;
+    }
+
+.form-container {
+    max-width: 500px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+    }
+
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-btn,
+.cancel-btn,
+.edit-btn,
+.delete-btn,
+.new-btn {
+    padding: 10px 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+}
