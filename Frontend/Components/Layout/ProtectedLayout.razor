@@ -22,12 +22,22 @@ else
             </div>
             <div class="sidebar-divider"></div>
 
-            <NavLink href="/doctor" class="menu-item" Match="NavLinkMatch.All">
-                <span>📅</span> Termine
-            </NavLink>
-            <NavLink href="/patients" class="menu-item">
-                <span>🧑</span> Patienten
-            </NavLink>
+            @if (Auth.IsStaff)
+            {
+                <NavLink href="/patient/dashboard" class="menu-item">
+                    <span>📅</span> Meine Termine
+                </NavLink>
+            }
+
+            @if (Auth.IsAdmin || Auth.IsDoctor)
+            {
+                <NavLink href="/doctor" class="menu-item" Match="NavLinkMatch.All">
+                    <span>📅</span> Termine
+                </NavLink>
+                <NavLink href="/patients" class="menu-item">
+                    <span>🧑</span> Patienten
+                </NavLink>
+            }
 
             @if (Auth.IsAdmin)
             {

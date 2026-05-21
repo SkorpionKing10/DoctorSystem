@@ -116,4 +116,34 @@ public class AppointmentsController : ControllerBase
 
         return Ok(freeSlots);
     }
+
+    [HttpGet("patient/{patientId}")]
+    public async Task<IActionResult> GetByPatient(int patientId)
+    {
+        var appointments = await _db.Appointments
+            .Where(a => a.PatientId == patientId && !a.IsCancelled)
+            .OrderBy(a => a.Date)
+            .ThenBy(a => a.Time)
+            .Select(a => new
+            {
+                a.Id,
+                a.PatientId,
+                a.ConsultationHourId,
+                a.Date,
+                a.Time,
+                a.IsCancelled,
+                ConsultationHourName = _db.ConsultationHours
+                    .Where(c => c.Id == a.ConsultationHourId)
+                    .Select(c => c.Name)
+                    .FirstOrDefault(),
+                DoctorName = _db.ConsultationHours
+                    .Where(c => c.Id == a.ConsultationHourId)
+                    .Join(_db.Doctors, c => c.DoctorId, d => d.Id,
+                          (c, d) => d.Title + " " + d.FirstName + " " + d.LastName)
+                    .FirstOrDefault()
+            })
+            .ToListAsync();
+
+        return Ok(appointments);
+    }
 }

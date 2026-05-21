@@ -54,4 +54,22 @@ public class PatientsController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok();
     }
+
+    [HttpGet("by-username/{username}")]
+    public async Task<IActionResult> GetByUsername(string username)
+    {
+        // User anhand Username suchen
+        var user = await _db.Users
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+        if (user == null) return NotFound("Kein User gefunden.");
+
+        // Patient mit dieser UserId finden
+        var patient = await _db.Patients
+            .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+        if (patient == null) return NotFound("Kein Patient verknüpft.");
+
+        return Ok(new { patient.Id, patient.FirstName, patient.LastName });
+    }
 }
