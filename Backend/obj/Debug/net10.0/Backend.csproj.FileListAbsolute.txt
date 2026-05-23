@@ -293,3 +293,4 @@ C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\bin\Debug\net10.0\Sy
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\bin\Debug\net10.0\runtimes\linux\lib\net10.0\System.DirectoryServices.Protocols.dll
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\bin\Debug\net10.0\runtimes\osx\lib\net10.0\System.DirectoryServices.Protocols.dll
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\bin\Debug\net10.0\runtimes\win\lib\net10.0\System.DirectoryServices.Protocols.dll
+C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

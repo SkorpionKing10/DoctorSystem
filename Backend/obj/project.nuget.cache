@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2K0zAXJw0tU=",
+  "dgSpecHash": "txkZOmdEaio=",
   "success": true,
   "projectFilePath": "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,7 @@
     "C:\\Users\\valen\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\valen\\.nuget\\packages\\microsoft.aspnetcore.authentication.negotiate\\10.0.8\\microsoft.aspnetcore.authentication.negotiate.10.0.8.nupkg.sha512",
     "C:\\Users\\valen\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.8\\microsoft.aspnetcore.openapi.10.0.8.nupkg.sha512",
+    "C:\\Users\\valen\\.nuget\\packages\\microsoft.aspnetcore.server.httpsys\\2.3.10\\microsoft.aspnetcore.server.httpsys.2.3.10.nupkg.sha512",
     "C:\\Users\\valen\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\8.0.0\\microsoft.bcl.asyncinterfaces.8.0.0.nupkg.sha512",
     "C:\\Users\\valen\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.4\\microsoft.bcl.cryptography.9.0.4.nupkg.sha512",
     "C:\\Users\\valen\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.3\\microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
@@ -58,5 +59,18 @@
     "C:\\Users\\valen\\.nuget\\packages\\system.security.cryptography.pkcs\\9.0.4\\system.security.cryptography.pkcs.9.0.4.nupkg.sha512",
     "C:\\Users\\valen\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.4\\system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.AspNetCore.Server.HttpSys wird nicht gekürzt. Erwägen Sie, dieses Paket aus Ihren Abhängigkeiten zu entfernen, da es wahrscheinlich nicht erforderlich ist.",
+      "projectPath": "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj",
+      "libraryId": "Microsoft.AspNetCore.Server.HttpSys",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

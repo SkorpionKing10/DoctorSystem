@@ -180,3 +180,4 @@ C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Frontend\obj\Debug\net10.0\r
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Frontend\obj\Debug\net10.0\Frontend.pdb
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Frontend\obj\Debug\net10.0\Frontend.genruntimeconfig.cache
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Frontend\obj\Debug\net10.0\ref\Frontend.dll
+C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Frontend\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

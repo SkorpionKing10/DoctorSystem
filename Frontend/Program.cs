@@ -14,11 +14,11 @@ builder.Services.AddScoped<AuthService>(sp =>
 {
     var handler = new HttpClientHandler
     {
-        UseDefaultCredentials = true  // ← Kerberos-Ticket wird automatisch mitgeschickt!
+        UseDefaultCredentials = true
     };
     var http = new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://192.168.68.102:5040/")
+        BaseAddress = new Uri("http://192.168.68.201:5040/")
     };
     return new AuthService(http);
 });
@@ -29,16 +29,15 @@ builder.Services.AddScoped<ApiService>(sp =>
     return new ApiService(sp.GetRequiredService<IHttpClientFactory>());
 });
 
-// HttpClient für alle anderen Razor-Komponenten (auch mit Kerberos)
 builder.Services.AddScoped(sp =>
 {
     var handler = new HttpClientHandler
     {
-        UseDefaultCredentials = true  // ← Kerberos überall!
+        UseDefaultCredentials = true
     };
     return new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://192.168.68.102:5040/")
+        BaseAddress = new Uri("http://192.168.68.201:5040/")
     };
 });
 

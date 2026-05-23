@@ -101,6 +101,19 @@
           "build/Microsoft.AspNetCore.OpenApi.targets": {}
         }
       },
+      "Microsoft.AspNetCore.Server.HttpSys/2.3.10": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
         "type": "package",
         "compile": {
@@ -1193,6 +1206,19 @@
         "lib/net10.0/Microsoft.AspNetCore.OpenApi.xml",
         "microsoft.aspnetcore.openapi.10.0.8.nupkg.sha512",
         "microsoft.aspnetcore.openapi.nuspec"
+      ]
+    },
+    "Microsoft.AspNetCore.Server.HttpSys/2.3.10": {
+      "sha512": "peBQHHqMDqFNZrOEbwRJqyNVz6OcCRO3SCr8mcveTQRL1RlyhH01reWsoyxOKFvBi+qBIotYGTwojC1drmoHSg==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.server.httpsys/2.3.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Microsoft.AspNetCore.Server.HttpSys.dll",
+        "lib/netstandard2.0/Microsoft.AspNetCore.Server.HttpSys.xml",
+        "microsoft.aspnetcore.server.httpsys.2.3.10.nupkg.sha512",
+        "microsoft.aspnetcore.server.httpsys.nuspec"
       ]
     },
     "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
@@ -2848,6 +2874,7 @@
       "BCrypt.Net-Next >= 4.2.0",
       "Microsoft.AspNetCore.Authentication.Negotiate >= 10.0.8",
       "Microsoft.AspNetCore.OpenApi >= 10.0.8",
+      "Microsoft.AspNetCore.Server.HttpSys >= 2.3.10",
       "Microsoft.EntityFrameworkCore >= 10.0.8",
       "Microsoft.EntityFrameworkCore.SqlServer >= 10.0.8",
       "Microsoft.EntityFrameworkCore.Tools >= 10.0.8",
@@ -2918,6 +2945,10 @@
           "Microsoft.AspNetCore.OpenApi": {
             "target": "Package",
             "version": "[10.0.8, )"
+          },
+          "Microsoft.AspNetCore.Server.HttpSys": {
+            "target": "Package",
+            "version": "[2.3.10, )"
           },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
@@ -3374,5 +3405,17 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "PackageReference Microsoft.AspNetCore.Server.HttpSys wird nicht gekürzt. Erwägen Sie, dieses Paket aus Ihren Abhängigkeiten zu entfernen, da es wahrscheinlich nicht erforderlich ist.",
+      "libraryId": "Microsoft.AspNetCore.Server.HttpSys",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }
