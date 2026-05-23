@@ -1,10 +1,17 @@
 ﻿@page "/"
-
 @inject NavigationManager Nav
+@inject Frontend.Services.AuthService Auth
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Nav.NavigateTo("/login", true);
+        await Auth.InitializeAsync();
+
+        var route = Auth.IsAdmin ? "/admin/users" :
+                    Auth.IsDoctor ? "/doctor" :
+                    Auth.IsStaff ? "/patient/dashboard" :
+                                    "/access-denied";
+
+        Nav.NavigateTo(route, true);
     }
 }

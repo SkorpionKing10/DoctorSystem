@@ -1,53 +1,59 @@
 ﻿using Microsoft.JSInterop;
+using System.Net.Http.Json;
 
 namespace Frontend.Services;
 
 public class AuthService
 {
-    private readonly IJSRuntime _js;
+    private readonly HttpClient _http;
 
     public bool IsLoggedIn { get; private set; }
     public string? Username { get; private set; }
     public string? Role { get; private set; }
 
-    // Role kommt als int-String vom Backend: 0=Admin, 1=Doctor, 2=Staff
-    public bool IsAdmin => Role == "0";
-    public bool IsDoctor => Role == "1";
-    public bool IsStaff => Role == "2";
+    // Rollen kommen jetzt als String vom Backend: "Admin", "Doctor", "Staff"
+    public bool IsAdmin => Role == "Admin";
+    public bool IsDoctor => Role == "Doctor";
+    public bool IsStaff => Role == "Staff";
 
-    public AuthService(IJSRuntime js)
+    public AuthService(HttpClient http)
     {
-        _js = js;
+        _http = http;
     }
 
     public async Task InitializeAsync()
     {
-        var username = await _js.InvokeAsync<string?>("localStorage.getItem", "username");
-        var role = await _js.InvokeAsync<string?>("localStorage.getItem", "role");
-
-        if (!string.IsNullOrEmpty(username))
+        try
         {
-            IsLoggedIn = true;
-            Username = username;
-            Role = role;
+            // Kerberos-Ticket wird automatisch mitgeschickt
+            var result = await _http.GetFromJsonAsync<MeResponse>(
+                "http://192.168.68.202:5040/api/auth/me");
+
+            if (result != null)
+            {
+                IsLoggedIn = true;
+                Username = result.Username;
+                Role = result.Role;
+            }
+        }
+        catch
+        {
+            IsLoggedIn = false;
         }
     }
 
-    public async Task LoginAsync(string username, string role)
-    {
-        IsLoggedIn = true;
-        Username = username;
-        Role = role;
-        await _js.InvokeVoidAsync("localStorage.setItem", "username", username);
-        await _js.InvokeVoidAsync("localStorage.setItem", "role", role);
-    }
-
-    public async Task LogoutAsync()
+    // Nicht mehr nötig bei Kerberos – bleibt leer für Kompatibilität
+    public Task LogoutAsync()
     {
         IsLoggedIn = false;
         Username = null;
         Role = null;
-        await _js.InvokeVoidAsync("localStorage.removeItem", "username");
-        await _js.InvokeVoidAsync("localStorage.removeItem", "role");
+        return Task.CompletedTask;
+    }
+
+    class MeResponse
+    {
+        public string Username { get; set; } = "";
+        public string Role { get; set; } = "";
     }
 }

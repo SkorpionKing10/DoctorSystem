@@ -57,7 +57,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         patient = await Http.GetFromJsonAsync<Patient>(
-            $"http://localhost:5264/api/patients/{Id}");
+            $"http://192.168.68.202:5040/api/patients/{Id}");
     }
 
     async Task Save()

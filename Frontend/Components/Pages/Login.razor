@@ -1,68 +1,26 @@
 ﻿@page "/login"
 @layout Layout.LoginLayout
-@using Frontend.Services
-@inject AuthService Auth
 @inject NavigationManager Nav
-@inject HttpClient Http
-
-<div class="login-box">
-    <h1>🩺 Login</h1>
-    <input @bind="username" placeholder="Username" />
-    <input type="password" @bind="password" placeholder="Password" />
-    <button @onclick="DoLogin">Login</button>
-    @if (!string.IsNullOrEmpty(error))
-    {
-        <p style="color:red; font-size:13px; margin:0;">@error</p>
-    }
-</div>
+@inject Frontend.Services.AuthService Auth
 
 @code {
-    string username = "";
-    string password = "";
-    string error = "";
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        // Kein Login-Dialog mehr – direkt Kerberos prüfen
+        await Auth.InitializeAsync();
+
         if (Auth.IsLoggedIn)
-            Nav.NavigateTo(GetHomeRoute(), true);
-    }
-
-    async Task DoLogin()
-    {
-        try
         {
-            var response = await Http.PostAsJsonAsync(
-                "http://localhost:5264/api/auth/login",
-                new { Username = username, Password = password });
+            var route = Auth.IsAdmin ? "/admin/users" :
+                        Auth.IsDoctor ? "/doctor" :
+                        Auth.IsStaff ? "/patient/dashboard" :
+                                        "/access-denied";
 
-            if (!response.IsSuccessStatusCode)
-            {
-                error = "Falscher Benutzername oder Passwort";
-                return;
-            }
-
-            var result = await response.Content
-                .ReadFromJsonAsync<LoginResult>();
-
-            await Auth.LoginAsync(result!.Username, result.Role.ToString());
-            Nav.NavigateTo(GetHomeRoute(), true);
+            Nav.NavigateTo(route, true);
         }
-        catch
+        else
         {
-            error = "Server nicht erreichbar";
+            Nav.NavigateTo("/access-denied", true);
         }
-    }
-
-    // Role: 0=Admin, 1=Doctor, 2=Staff(=Patient)
-    string GetHomeRoute() =>
-        Auth.IsAdmin ? "/admin/users" :
-        Auth.IsDoctor ? "/doctor" :
-        Auth.IsStaff ? "/patient/dashboard" :
-                         "/login";
-
-    class LoginResult
-    {
-        public string Username { get; set; } = "";
-        public int Role { get; set; }
     }
 }

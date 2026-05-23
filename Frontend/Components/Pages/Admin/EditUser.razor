@@ -65,7 +65,7 @@ else
         try
         {
             var users = await Http.GetFromJsonAsync<List<UserDto>>(
-                "http://localhost:5264/api/users");
+                "http://192.168.68.202:5040/api/users");
 
             user = users?.FirstOrDefault(x => x.Id == Id);
         }
@@ -80,7 +80,7 @@ else
         if (user == null) return;
 
         await Http.PutAsJsonAsync(
-            $"http://localhost:5264/api/users/{user.Id}",
+            $"http://192.168.68.202:5040/api/users/{user.Id}",
             new UpdateUserDto
             {
                 Username = user.Username,

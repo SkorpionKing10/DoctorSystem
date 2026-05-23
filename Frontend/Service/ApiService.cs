@@ -9,13 +9,19 @@ public class ApiService
 
     public ApiService(IHttpClientFactory factory)
     {
-        _http = factory.CreateClient();
-        _http.BaseAddress = new Uri("http://localhost:5264/");
+        var handler = new HttpClientHandler
+        {
+            UseDefaultCredentials = true  // ← Kerberos
+        };
+        _http = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("http://192.168.68.200/")
+        };
     }
 
     public async Task<List<AppointmentDto>> GetAppointments()
     {
         return await _http.GetFromJsonAsync<List<AppointmentDto>>("api/appointments")
-               ?? new List<AppointmentDto>();
+               ?? new();
     }
 }

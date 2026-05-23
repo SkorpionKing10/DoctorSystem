@@ -1,4 +1,5 @@
 ﻿using Backend.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +14,14 @@ public class ConsultationHoursController : ControllerBase
         _db = db;
     }
 
+    // Alle dürfen Sprechstunden sehen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet]
     public async Task<IActionResult> Get()
         => Ok(await _db.ConsultationHours.ToListAsync());
 
+    // Nur Admin darf Sprechstunden verwalten
+    [Authorize(Policy = "NurAdmin")]
     [HttpPost]
     public async Task<IActionResult> Create(ConsultationHour c)
     {
@@ -25,6 +30,7 @@ public class ConsultationHoursController : ControllerBase
         return Ok(c);
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, ConsultationHour updated)
     {
@@ -41,6 +47,7 @@ public class ConsultationHoursController : ControllerBase
         return Ok(c);
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

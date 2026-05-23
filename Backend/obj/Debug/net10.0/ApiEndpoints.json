@@ -154,6 +154,16 @@
   },
   {
     "ContainingType": "AuthController",
+    "Method": "Me",
+    "RelativePath": "api/auth/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthController",
     "Method": "Seed",
     "RelativePath": "api/auth/seed",
     "HttpMethod": "POST",
@@ -424,7 +434,7 @@
       },
       {
         "Name": "dto",
-        "Type": "Backend.Controllers.UpdateUserDto",
+        "Type": "Backend.Model.UpdateUserDto",
         "IsRequired": true
       }
     ],

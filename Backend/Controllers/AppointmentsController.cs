@@ -1,5 +1,6 @@
 ﻿using Backend.Model;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,10 +17,14 @@ public class AppointmentsController : ControllerBase
         _db = db;
     }
 
+    // Alle dürfen Termine sehen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet]
     public async Task<IActionResult> Get()
         => Ok(await _db.Appointments.ToListAsync());
 
+    // Staff + Doctor dürfen buchen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpPost("book")]
     public async Task<IActionResult> Book(int patientId, int consultationHourId)
     {
@@ -27,6 +32,8 @@ public class AppointmentsController : ControllerBase
         return result == null ? BadRequest() : Ok(result);
     }
 
+    // Nur Admin + Doctor dürfen Termine ändern
+    [Authorize(Policy = "DoctorOderAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Appointment updated)
     {
@@ -40,6 +47,8 @@ public class AppointmentsController : ControllerBase
         return Ok(a);
     }
 
+    // Nur Admin darf Termine löschen
+    [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -51,6 +60,8 @@ public class AppointmentsController : ControllerBase
         return Ok();
     }
 
+    // Staff + Doctor dürfen stornieren
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpPost("cancel/{id}")]
     public async Task<IActionResult> Cancel(int id)
     {
@@ -58,11 +69,11 @@ public class AppointmentsController : ControllerBase
         return Ok();
     }
 
-
+    // Staff + Doctor dürfen Termine erstellen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AppointmentCreateDto dto)
     {
-        // Collision Detection
         var collision = await _db.Appointments.AnyAsync(a =>
             a.ConsultationHourId == dto.ConsultationHourId &&
             a.Date.Date == dto.Date.Date &&
@@ -72,7 +83,6 @@ public class AppointmentsController : ControllerBase
         if (collision)
             return Conflict(new { message = "Dieser Zeitslot ist bereits vergeben." });
 
-        // Patient darf nicht 2 Termine am selben Tag haben
         var doubleBooking = await _db.Appointments.AnyAsync(a =>
             a.PatientId == dto.PatientId &&
             a.Date.Date == dto.Date.Date &&
@@ -94,6 +104,8 @@ public class AppointmentsController : ControllerBase
         return Ok(appt);
     }
 
+    // Alle dürfen freie Slots sehen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet("free-slots/{consultationHourId}/{date}")]
     public async Task<IActionResult> GetFreeSlots(int consultationHourId, DateTime date)
     {
@@ -117,6 +129,8 @@ public class AppointmentsController : ControllerBase
         return Ok(freeSlots);
     }
 
+    // Eigene Termine sehen – Staff darf nur eigene Patienten sehen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet("patient/{patientId}")]
     public async Task<IActionResult> GetByPatient(int patientId)
     {

@@ -1,8 +1,9 @@
-﻿namespace Backend.Controllers;
-
-using Backend.Model;
+﻿using Backend.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/users")]
@@ -15,6 +16,8 @@ public class UsersController : ControllerBase
         _db = db;
     }
 
+    // Nur Admin darf User verwalten
+    [Authorize(Policy = "NurAdmin")]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -28,6 +31,7 @@ public class UsersController : ControllerBase
         }).ToListAsync());
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpPost]
     public async Task<IActionResult> Create(CreateUserDto dto)
     {
@@ -44,7 +48,7 @@ public class UsersController : ControllerBase
         var user = new User
         {
             Username = dto.Username,
-            PasswordHash = dto.Password,  // Hash kommt später
+            PasswordHash = dto.Password,
             Role = role,
             IsActive = dto.IsActive,
             CreatedAt = DateTime.UtcNow
@@ -63,6 +67,7 @@ public class UsersController : ControllerBase
         });
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateUserDto dto)
     {
@@ -77,6 +82,7 @@ public class UsersController : ControllerBase
         return Ok(u);
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -95,11 +101,4 @@ public class CreateUserDto
     public string Password { get; set; } = "";
     public string Role { get; set; } = "Staff";
     public bool IsActive { get; set; } = true;
-}
-
-public class UpdateUserDto
-{
-    public string Username { get; set; } = "";
-    public UserRole Role { get; set; }
-    public bool IsActive { get; set; }
 }

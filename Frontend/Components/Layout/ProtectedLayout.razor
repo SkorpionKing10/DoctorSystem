@@ -10,7 +10,7 @@
 }
 else if (!Auth.IsLoggedIn)
 {
-    <p>Redirecting...</p>
+    <p style="color:red;">⛔ Kein Zugriff – kein gültiges Kerberos-Ticket.</p>
 }
 else
 {
@@ -54,7 +54,10 @@ else
             }
 
             <div class="sidebar-bottom">
-                <button class="logout-btn" @onclick="Logout">🚪 Abmelden</button>
+                <div style="font-size:13px; color:#aaa; padding:8px;">
+                    👤 @Auth.Username<br />
+                    <span style="font-size:11px;">@Auth.Role</span>
+                </div>
             </div>
         </div>
         <div class="content">
@@ -74,15 +77,9 @@ else
             _initialized = true;
 
             if (!Auth.IsLoggedIn)
-                Nav.NavigateTo("/login", true);
+                Nav.NavigateTo("/access-denied", true);
 
             StateHasChanged();
         }
-    }
-
-    async Task Logout()
-    {
-        await Auth.LogoutAsync();
-        Nav.NavigateTo("/login", true);
     }
 }

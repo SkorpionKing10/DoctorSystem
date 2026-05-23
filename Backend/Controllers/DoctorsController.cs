@@ -1,4 +1,5 @@
 ﻿using Backend.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +14,14 @@ public class DoctorsController : ControllerBase
         _db = db;
     }
 
+    // Alle dürfen Ärzte sehen
+    [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet]
     public async Task<IActionResult> Get()
         => Ok(await _db.Doctors.ToListAsync());
 
+    // Nur Admin darf Ärzte anlegen/bearbeiten/löschen
+    [Authorize(Policy = "NurAdmin")]
     [HttpPost]
     public async Task<IActionResult> Create(Doctor d)
     {
@@ -25,6 +30,7 @@ public class DoctorsController : ControllerBase
         return Ok(d);
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Doctor updated)
     {
@@ -39,6 +45,7 @@ public class DoctorsController : ControllerBase
         return Ok(d);
     }
 
+    [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
