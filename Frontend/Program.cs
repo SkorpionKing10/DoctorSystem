@@ -18,7 +18,7 @@ builder.Services.AddScoped<AuthService>(sp =>
     };
     var http = new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://192.168.68.200/")
+        BaseAddress = new Uri("http://192.168.68.102:5040/")
     };
     return new AuthService(http);
 });
@@ -38,7 +38,7 @@ builder.Services.AddScoped(sp =>
     };
     return new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://192.168.68.200/")
+        BaseAddress = new Uri("http://192.168.68.102:5040/")
     };
 });
 

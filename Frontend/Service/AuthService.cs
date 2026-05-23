@@ -27,7 +27,7 @@ public class AuthService
         {
             // Kerberos-Ticket wird automatisch mitgeschickt
             var result = await _http.GetFromJsonAsync<MeResponse>(
-                "http://192.168.68.202:5040/api/auth/me");
+                "http://192.168.68.102:5040/api/auth/me");
 
             if (result != null)
             {

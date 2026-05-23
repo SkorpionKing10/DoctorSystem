@@ -198,7 +198,7 @@ else
         try
         {
             var all = await Http.GetFromJsonAsync<List<ConsultationHourDto>>(
-                "http://192.168.68.202:5040/api/consultation-hours");
+                "http://192.168.68.102:5040/api/consultation-hours");
             _consultationHours = all?.Where(c => c.IsActive).ToList() ?? new();
         }
         catch { }
@@ -209,7 +209,7 @@ else
             try
             {
                 var patient = await Http.GetFromJsonAsync<PatientLookupDto>(
-                    $"http://192.168.68.202:5040/api/patients/by-username/{Auth.Username}");
+                    $"http://192.168.68.102:5040/api/patients/by-username/{Auth.Username}");
 
                 if (patient != null)
                 {
@@ -229,7 +229,7 @@ else
         try
         {
             _appointments = await Http.GetFromJsonAsync<List<PatientAppointmentDto>>(
-                $"http://192.168.68.202:5040/api/appointments/patient/{_patientId}") ?? new();
+                $"http://192.168.68.102:5040/api/appointments/patient/{_patientId}") ?? new();
         }
         catch
         {
@@ -245,7 +245,7 @@ else
         {
             var dateStr = _selectedDate.ToString("yyyy-MM-dd");
             _freeSlots = await Http.GetFromJsonAsync<List<string>>(
-                $"http://192.168.68.202:5040/api/appointments/free-slots/{_selectedConsultationHourId}/{dateStr}")
+                $"http://192.168.68.102:5040/api/appointments/free-slots/{_selectedConsultationHourId}/{dateStr}")
                 ?? new();
         }
         catch { }
@@ -279,7 +279,7 @@ else
             };
 
             var response = await Http.PostAsJsonAsync(
-                "http://192.168.68.202:5040/api/appointments", dto);
+                "http://192.168.68.102:5040/api/appointments", dto);
 
             if (response.IsSuccessStatusCode)
             {
@@ -328,7 +328,7 @@ else
         try
         {
             var response = await Http.PostAsync(
-                $"http://192.168.68.202:5040/api/appointments/cancel/{id}", null);
+                $"http://192.168.68.102:5040/api/appointments/cancel/{id}", null);
 
             if (response.IsSuccessStatusCode)
             {

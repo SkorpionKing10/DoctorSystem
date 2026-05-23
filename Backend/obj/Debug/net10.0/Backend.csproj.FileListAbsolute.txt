@@ -282,7 +282,6 @@ C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\st
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\staticwebassets.development.json
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\swae.build.ex.cache
-C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\Backend.csproj.Up2Date
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\Backend.dll
 C:\Users\valen\Desktop\4BHIF\CSharp\Repo_Arztpraxis\Backend\obj\Debug\net10.0\refint\Backend.dll

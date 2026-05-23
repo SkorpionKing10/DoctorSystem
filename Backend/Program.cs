@@ -26,7 +26,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("NurDoctor", p => p.RequireRole("Doctor"));
     options.AddPolicy("NurStaff", p => p.RequireRole("Staff"));
     options.AddPolicy("DoctorOderStaff", p => p.RequireRole("Doctor", "Staff"));
-    options.AddPolicy("DoctorOderAdmin", p => p.RequireRole("Doctor", "Admin")); // ← neu
+    options.AddPolicy("DoctorOderAdmin", p => p.RequireRole("Doctor", "Admin"));
 
     // Jeder muss eingeloggt + in DB sein
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -46,10 +46,10 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "http://192.168.68.200",   // Server HTTP
-                "https://192.168.68.200",  // Server HTTPS
-                "http://localhost:5000",    // lokale Entwicklung
-                "https://localhost:7000"    // lokale Entwicklung HTTPS
+                "http://192.168.68.202:5038",  // Frontend auf Raspi
+                "http://192.168.68.102:5040",  // Backend selbst
+                "http://localhost:5000",        // lokale Entwicklung
+                "https://localhost:7000"        // lokale Entwicklung HTTPS
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
