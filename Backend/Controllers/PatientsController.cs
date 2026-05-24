@@ -14,19 +14,19 @@ public class PatientsController : ControllerBase
         _db = db;
     }
 
-    // Doctor + Staff dürfen Patienten sehen
-    [Authorize(Policy = "DoctorOderStaff")]
+    // Nur Doctor + Admin dürfen alle Patienten sehen
+    [Authorize(Policy = "DoctorOderAdmin")]
     [HttpGet]
     public async Task<IActionResult> Get()
         => Ok(await _db.Patients.ToListAsync());
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    [Authorize(Policy = "DoctorOderAdmin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
         => Ok(await _db.Patients.FindAsync(id));
 
-    // Staff darf Patienten anlegen
-    [Authorize(Policy = "DoctorOderStaff")]
+    // Admin darf Patienten anlegen
+    [Authorize(Policy = "NurAdmin")]
     [HttpPost]
     public async Task<IActionResult> Create(Patient p)
     {
@@ -35,19 +35,17 @@ public class PatientsController : ControllerBase
         return Ok(p);
     }
 
-    // Staff darf Patienten bearbeiten
-    [Authorize(Policy = "DoctorOderStaff")]
+    // Admin darf Patienten bearbeiten
+    [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Patient updated)
     {
         var p = await _db.Patients.FindAsync(id);
         if (p == null) return NotFound();
-
         p.FirstName = updated.FirstName;
         p.LastName = updated.LastName;
         p.BirthDate = updated.BirthDate;
         p.SocialSecurityNumber = updated.SocialSecurityNumber;
-
         await _db.SaveChangesAsync();
         return Ok(p);
     }
@@ -59,26 +57,22 @@ public class PatientsController : ControllerBase
     {
         var p = await _db.Patients.FindAsync(id);
         if (p == null) return NotFound();
-
         _db.Patients.Remove(p);
         await _db.SaveChangesAsync();
         return Ok();
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    // Jeder darf seinen eigenen Patienten-Datensatz sehen
+    [Authorize]
     [HttpGet("by-username/{username}")]
     public async Task<IActionResult> GetByUsername(string username)
     {
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.Username == username);
-
         if (user == null) return NotFound("Kein User gefunden.");
-
         var patient = await _db.Patients
             .FirstOrDefaultAsync(p => p.UserId == user.Id);
-
         if (patient == null) return NotFound("Kein Patient verknüpft.");
-
         return Ok(new { patient.Id, patient.FirstName, patient.LastName });
     }
 }

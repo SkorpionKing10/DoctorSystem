@@ -17,11 +17,32 @@ public class AppointmentsController : ControllerBase
         _db = db;
     }
 
-    // Alle dürfen Termine sehen
-    [Authorize(Policy = "DoctorOderStaff")]
+    // Nur Doctor + Admin dürfen alle Termine sehen
+    [Authorize(Policy = "DoctorOderAdmin")]
     [HttpGet]
     public async Task<IActionResult> Get()
         => Ok(await _db.Appointments.ToListAsync());
+
+    // Staff (Patient) darf nur seine Termine sehen
+    [Authorize(Policy = "NurStaff")]
+    [HttpGet("my-appointments")]
+    public async Task<IActionResult> GetMyAppointments()
+    {
+        var username = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (user == null) return Unauthorized();
+
+        var patient = await _db.Patients.FirstOrDefaultAsync(p => p.UserId == user.Id);
+        if (patient == null) return NotFound("Kein Patient verknüpft.");
+
+        var appointments = await _db.Appointments
+            .Where(a => a.PatientId == patient.Id && !a.IsCancelled)
+            .OrderBy(a => a.Date)
+            .ThenBy(a => a.Time)
+            .ToListAsync();
+
+        return Ok(appointments);
+    }
 
     // Staff + Doctor dürfen buchen
     [Authorize(Policy = "DoctorOderStaff")]
