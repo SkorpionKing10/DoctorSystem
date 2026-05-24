@@ -67,7 +67,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         patients = await Http.GetFromJsonAsync<List<Patient>>(
-            "http://192.168.68.102:5040/api/patients");
+            "http://192.168.68.50:5000/api/patients");
     }
 
     void CreateNew()
@@ -82,7 +82,7 @@ else
 
     async Task DeletePatient(int id)
     {
-        var result = await Http.DeleteAsync($"http://192.168.68.202:5040/api/patients/{id}");
+        var result = await Http.DeleteAsync($"http://192.168.68.50:5000/api/patients/{id}");
 
         if (result.IsSuccessStatusCode)
         {

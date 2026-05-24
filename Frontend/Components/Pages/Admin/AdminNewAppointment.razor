@@ -90,9 +90,9 @@ else
         try
         {
             patients = await Http.GetFromJsonAsync<List<PatientDto>>(
-                "http://192.168.68.102:5040/api/patients") ?? new();
+                "http://192.168.68.50:5000/api/patients") ?? new();
             consultationHours = await Http.GetFromJsonAsync<List<ConsultationHourDto>>(
-                "http://192.168.68.102:5040/api/consultation-hours") ?? new();
+                "http://192.168.68.50:5000/api/consultation-hours") ?? new();
         }
         catch { }
     }
@@ -104,7 +104,7 @@ else
         {
             var dateStr = selectedDate.ToString("yyyy-MM-dd");
             freeSlots = await Http.GetFromJsonAsync<List<string>>(
-                $"http://192.168.68.102:5040/api/appointments/free-slots/{selectedConsultationHourId}/{dateStr}")
+                $"http://192.168.68.50:5000/api/appointments/free-slots/{selectedConsultationHourId}/{dateStr}")
                 ?? new();
         }
         catch
@@ -132,7 +132,7 @@ else
         };
 
         var response = await Http.PostAsJsonAsync(
-            "http://192.168.68.102:5040/api/appointments", dto);
+            "http://192.168.68.50:5000/api/appointments", dto);
 
         if (response.IsSuccessStatusCode)
         {

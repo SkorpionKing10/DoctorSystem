@@ -50,7 +50,7 @@
     async Task Save()
     {
         var result = await Http.PostAsJsonAsync(
-            "http://192.168.68.102:5040/api/patients",
+            "http://192.168.68.50:5000/api/patients",
             patient);
 
         if (result.IsSuccessStatusCode)

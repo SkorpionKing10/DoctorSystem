@@ -69,7 +69,7 @@ else
         try
         {
             users = await Http.GetFromJsonAsync<List<UserDto>>(
-                "http://192.168.68.102:5040/api/users");
+                "http://192.168.68.50:5000/api/users");
         }
         catch
         {
@@ -89,7 +89,7 @@ else
 
     async Task DeleteUser(int id)
     {
-        await Http.DeleteAsync($"http://192.168.68.102:5040/api/users/{id}");
+        await Http.DeleteAsync($"http://192.168.68.50:5000/api/users/{id}");
         users?.RemoveAll(x => x.Id == id);
     }
 

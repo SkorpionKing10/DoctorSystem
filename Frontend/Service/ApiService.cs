@@ -15,7 +15,7 @@ public class ApiService
         };
         _http = new HttpClient(handler)
         {
-            BaseAddress = new Uri("http://192.168.68.102:5040/")
+            BaseAddress = new Uri("http://192.168.68.50:5000/")
         };
     }
 
