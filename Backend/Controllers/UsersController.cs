@@ -1,104 +1,80 @@
 ﻿using Backend.Model;
+using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly DoctorDbContext _db;
+    private readonly IUserService _userService;
 
-    public UsersController(DoctorDbContext db)
+    public UsersController(IUserService userService)
     {
-        _db = db;
+        _userService = userService;
     }
 
-    // Nur Admin darf User verwalten
     [Authorize(Policy = "NurAdmin")]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        return Ok(await _db.Users.Select(u => new
+        var users = await _userService.GetAllAsync();
+        return Ok(users.Select(u => new
         {
             u.Id,
             u.Username,
             Role = u.Role.ToString(),
             u.IsActive,
             u.CreatedAt
-        }).ToListAsync());
+        }));
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpPost]
-    public async Task<IActionResult> Create(CreateUserDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
-            return BadRequest("Benutzername und Passwort sind erforderlich.");
-
-        if (!Enum.TryParse<UserRole>(dto.Role, ignoreCase: true, out var role))
-            return BadRequest("Ungültige Rolle. Erlaubt: Admin, Doctor, Staff");
-
-        var exists = await _db.Users.AnyAsync(u => u.Username == dto.Username);
-        if (exists)
-            return Conflict("Benutzername bereits vergeben.");
-
-        var user = new User
+        try
         {
-            Username = dto.Username,
-            PasswordHash = dto.Password,
-            Role = role,
-            IsActive = dto.IsActive,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(Get), new { id = user.Id }, new
+            var user = await _userService.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = user.Id }, new
+            {
+                user.Id,
+                user.Username,
+                Role = user.Role.ToString(),
+                user.IsActive,
+                user.CreatedAt
+            });
+        }
+        catch (ArgumentException ex)
         {
-            user.Id,
-            user.Username,
-            Role = user.Role.ToString(),
-            user.IsActive,
-            user.CreatedAt
-        });
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateUserDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
     {
-        var u = await _db.Users.FindAsync(id);
-        if (u == null) return NotFound();
-
-        u.Username = dto.Username;
-        u.Role = dto.Role;
-        u.IsActive = dto.IsActive;
-
-        await _db.SaveChangesAsync();
-        return Ok(u);
+        try
+        {
+            var user = await _userService.UpdateAsync(id, dto);
+            return Ok(user);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var u = await _db.Users.FindAsync(id);
-        if (u == null) return NotFound();
-
-        _db.Users.Remove(u);
-        await _db.SaveChangesAsync();
+        await _userService.DeleteAsync(id);
         return Ok();
     }
-}
-
-public class CreateUserDto
-{
-    public string Username { get; set; } = "";
-    public string Password { get; set; } = "";
-    public string Role { get; set; } = "Staff";
-    public bool IsActive { get; set; } = true;
 }

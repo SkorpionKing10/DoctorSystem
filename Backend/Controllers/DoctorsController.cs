@@ -1,59 +1,55 @@
 ﻿using Backend.Model;
+using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/doctors")]
 public class DoctorsController : ControllerBase
 {
-    private readonly DoctorDbContext _db;
+    private readonly IDoctorService _doctorService;
 
-    public DoctorsController(DoctorDbContext db)
+    public DoctorsController(IDoctorService doctorService)
     {
-        _db = db;
+        _doctorService = doctorService;
     }
 
-    // Alle dürfen Ärzte sehen
     [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet]
     public async Task<IActionResult> Get()
-        => Ok(await _db.Doctors.ToListAsync());
+    {
+        var doctors = await _doctorService.GetAllAsync();
+        return Ok(doctors);
+    }
 
-    // Nur Admin darf Ärzte anlegen/bearbeiten/löschen
     [Authorize(Policy = "NurAdmin")]
     [HttpPost]
-    public async Task<IActionResult> Create(Doctor d)
+    public async Task<IActionResult> Create([FromBody] Doctor doctor)
     {
-        _db.Doctors.Add(d);
-        await _db.SaveChangesAsync();
-        return Ok(d);
+        var created = await _doctorService.CreateAsync(doctor);
+        return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Doctor updated)
+    public async Task<IActionResult> Update(int id, [FromBody] Doctor doctor)
     {
-        var d = await _db.Doctors.FindAsync(id);
-        if (d == null) return NotFound();
-
-        d.FirstName = updated.FirstName;
-        d.LastName = updated.LastName;
-        d.Title = updated.Title;
-
-        await _db.SaveChangesAsync();
-        return Ok(d);
+        try
+        {
+            var updated = await _doctorService.UpdateAsync(id, doctor);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var d = await _db.Doctors.FindAsync(id);
-        if (d == null) return NotFound();
-
-        _db.Doctors.Remove(d);
-        await _db.SaveChangesAsync();
+        await _doctorService.DeleteAsync(id);
         return Ok();
     }
 }

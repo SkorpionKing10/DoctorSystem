@@ -1,10 +1,10 @@
 ﻿@page "/admin/users"
 @layout ProtectedLayout
-@inject HttpClient Http
-@inject NavigationManager Nav
-@using Frontend.Services
 @using Frontend.Models
-@inject AuthService Auth
+@using Frontend.Services
+@inject IAuthService Auth
+@inject IUserService UserService
+@inject NavigationManager Nav
 
 <div class="page-header">
     <h1>👥 User verwalten</h1>
@@ -31,73 +31,43 @@ else
     @foreach (var u in users)
     {
         <div class="patient-card">
-
             <div class="patient-avatar">
                 @u.Username?.Substring(0, 1).ToUpper()
             </div>
-
             <div style="flex:1">
                 <div class="patient-name">@u.Username</div>
-
                 <div class="patient-svn">
-                    Rolle: @u.Role ·
-                    @(u.IsActive ? "Aktiv" : "Inaktiv")
+                    Rolle: @u.Role · @(u.IsActive ? "Aktiv" : "Inaktiv")
                 </div>
             </div>
-
             <div style="display:flex; gap:8px;">
-
                 <button class="appt-badge" @onclick="() => EditUser(u.Id)">
                     ✏️ Bearbeiten
                 </button>
-
                 <button class="appt-badge cancelled" @onclick="() => DeleteUser(u.Id)">
                     🗑 Löschen
                 </button>
-
             </div>
         </div>
     }
 }
 
 @code {
-
     List<UserDto>? users;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            users = await Http.GetFromJsonAsync<List<UserDto>>(
-                "http://192.168.68.50:5000/api/users");
-        }
-        catch
-        {
-            users = new List<UserDto>();
-        }
+        users = await UserService.GetAllUsersAsync();
     }
 
-    void AddUser()
-    {
-        Nav.NavigateTo("/admin/users/add");
-    }
+    void AddUser() => Nav.NavigateTo("/admin/users/add");
 
-    void EditUser(int id)
-    {
-        Nav.NavigateTo($"/admin/users/edit/{id}");
-    }
+    void EditUser(int id) => Nav.NavigateTo($"/admin/users/edit/{id}");
 
     async Task DeleteUser(int id)
     {
-        await Http.DeleteAsync($"http://192.168.68.50:5000/api/users/{id}");
-        users?.RemoveAll(x => x.Id == id);
-    }
-
-    public class UserDto
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = "";
-        public string Role { get; set; } = "";
-        public bool IsActive { get; set; }
+        var success = await UserService.DeleteUserAsync(id);
+        if (success)
+            users?.RemoveAll(x => x.Id == id);
     }
 }

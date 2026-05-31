@@ -1,4 +1,5 @@
 using Backend.Auth;
+using Backend.Repositories;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
@@ -15,11 +16,23 @@ builder.Services.AddDbContext<DoctorDbContext>(opt =>
 builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
     .AddNegotiate();
 
-// Transformer: liest Rolle aus DB nach Kerberos-Login
 builder.Services.AddScoped<IClaimsTransformation, KerberosRollenTransformer>();
-builder.Services.AddScoped<UserRepository>();
 
-// ── Autorisierung mit Rollen ─────────────────────────────────
+// ── Repositories ─────────────────────────────────────────────
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IConsultationHourRepository, ConsultationHourRepository>();
+
+// ── Services ─────────────────────────────────────────────────
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IConsultationHourService, ConsultationHourService>();
+
+// ── Autorisierung ────────────────────────────────────────────
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("NurAdmin", p => p.RequireRole("Admin"));
@@ -33,12 +46,12 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// ── Services ─────────────────────────────────────────────────
-builder.Services.AddScoped<AppointmentService>();
+// ── API ──────────────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ── CORS ─────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -60,7 +73,6 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();

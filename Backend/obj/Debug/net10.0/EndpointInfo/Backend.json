@@ -46,6 +46,41 @@
         }
       }
     },
+    "/api/appointments/my-appointments": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/appointments/patient/{patientId}": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/appointments/book": {
       "post": {
         "tags": [
@@ -162,61 +197,6 @@
         }
       }
     },
-    "/api/appointments/free-slots/{consultationHourId}/{date}": {
-      "get": {
-        "tags": [
-          "Appointments"
-        ],
-        "parameters": [
-          {
-            "name": "consultationHourId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "date",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/appointments/patient/{patientId}": {
-      "get": {
-        "tags": [
-          "Appointments"
-        ],
-        "parameters": [
-          {
-            "name": "patientId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/auth/me": {
       "get": {
         "tags": [
@@ -260,18 +240,6 @@
         }
       }
     },
-    "/api/auth/seed": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/consultation-hours": {
       "get": {
         "tags": [
@@ -306,6 +274,38 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/consultation-hours/free-slots/{consultationHourId}/{date}": {
+      "get": {
+        "tags": [
+          "ConsultationHours"
+        ],
+        "parameters": [
+          {
+            "name": "consultationHourId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

@@ -1,68 +1,115 @@
-﻿namespace Backend.Services;
+﻿using Backend.Model;
+using Backend.Repositories;
 
-using Backend.Model;
-using Microsoft.EntityFrameworkCore;
+namespace Backend.Services;
 
-public class AppointmentService
+public class AppointmentService : IAppointmentService
 {
-    private readonly DoctorDbContext _db;
+    private readonly IAppointmentRepository _appointmentRepository;
+    private readonly IConsultationHourRepository _consultationHourRepository;
+    private readonly IPatientRepository _patientRepository;
+    private readonly IUserRepository _userRepository;
 
-    public AppointmentService(DoctorDbContext db)
+    public AppointmentService(
+        IAppointmentRepository appointmentRepository,
+        IConsultationHourRepository consultationHourRepository,
+        IPatientRepository patientRepository,
+        IUserRepository userRepository)
     {
-        _db = db;
+        _appointmentRepository = appointmentRepository;
+        _consultationHourRepository = consultationHourRepository;
+        _patientRepository = patientRepository;
+        _userRepository = userRepository;
     }
 
-    public async Task<Appointment?> BookNextAvailable(int patientId, int consultationHourId)
+    public async Task<Appointment?> GetByIdAsync(int id)
+        => await _appointmentRepository.GetByIdAsync(id);
+
+    public async Task<List<Appointment>> GetAllAsync()
+        => await _appointmentRepository.GetAllAsync();
+
+    public async Task<List<Appointment>> GetByPatientIdAsync(int patientId)
+        => await _appointmentRepository.GetByPatientIdAsync(patientId);
+
+    public async Task<List<Appointment>> GetByPatientUsernameAsync(string username)
     {
-        var slot = await GetNextFreeSlot(consultationHourId);
-        if (slot == null) return null;
+        var user = await _userRepository.GetByUsernameAsync(username)
+            ?? throw new KeyNotFoundException($"User {username} nicht gefunden.");
 
-        var overlap = await _db.Appointments.AnyAsync(a =>
-            a.PatientId == patientId &&
-            a.Date == DateTime.Today &&
-            !a.IsCancelled);
+        var patient = await _patientRepository.GetByUserIdAsync(user.Id)
+            ?? throw new KeyNotFoundException($"Patient für User {username} nicht gefunden.");
 
-        if (overlap) return null;
+        return await _appointmentRepository.GetByPatientIdAsync(patient.Id);
+    }
 
-        var appt = new Appointment
+    public async Task<Appointment> CreateAsync(AppointmentCreateDto dto)
+    {
+        var collision = await _appointmentRepository.HasConflictAsync(dto.ConsultationHourId, dto.Date, dto.Time);
+        if (collision)
+            throw new InvalidOperationException("Dieser Zeitslot ist bereits vergeben.");
+
+        var doubleBooking = await _appointmentRepository.HasDoubleBookingAsync(dto.PatientId, dto.Date);
+        if (doubleBooking)
+            throw new InvalidOperationException("Patient hat bereits einen Termin an diesem Tag.");
+
+        var appointment = new Appointment
         {
-            PatientId = patientId,
-            ConsultationHourId = consultationHourId,
-            Date = DateTime.Today,
-            Time = slot.Value
+            PatientId = dto.PatientId,
+            ConsultationHourId = dto.ConsultationHourId,
+            Date = dto.Date,
+            Time = dto.Time
         };
 
-        _db.Appointments.Add(appt);
-        await _db.SaveChangesAsync();
-
-        return appt;
+        return await _appointmentRepository.CreateAsync(appointment);
     }
 
-    private async Task<TimeSpan?> GetNextFreeSlot(int id)
+    public async Task<Appointment> UpdateAsync(int id, Appointment appointment)
     {
-        var ch = await _db.ConsultationHours.FindAsync(id);
+        var existing = await _appointmentRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Appointment mit ID {id} nicht gefunden.");
+
+        existing.Date = appointment.Date;
+        existing.Time = appointment.Time;
+
+        return await _appointmentRepository.UpdateAsync(existing);
+    }
+
+    public async Task CancelAsync(int id)
+    {
+        var appointment = await _appointmentRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Appointment mit ID {id} nicht gefunden.");
+
+        appointment.IsCancelled = true;
+        await _appointmentRepository.UpdateAsync(appointment);
+    }
+
+    public async Task DeleteAsync(int id)
+        => await _appointmentRepository.DeleteAsync(id);
+
+    public async Task<Appointment?> BookNextAvailableAsync(int patientId, int consultationHourId)
+    {
+        var ch = await _consultationHourRepository.GetByIdAsync(consultationHourId);
         if (ch == null) return null;
 
         for (var t = ch.StartTime; t < ch.EndTime; t += TimeSpan.FromMinutes(15))
         {
-            var exists = await _db.Appointments.AnyAsync(a =>
-                a.ConsultationHourId == id &&
-                a.Date == DateTime.Today &&
-                a.Time == t &&
-                !a.IsCancelled);
+            var hasConflict = await _appointmentRepository.HasConflictAsync(consultationHourId, DateTime.Today, t);
+            if (hasConflict) continue;
 
-            if (!exists) return t;
+            var hasDoubleBooking = await _appointmentRepository.HasDoubleBookingAsync(patientId, DateTime.Today);
+            if (hasDoubleBooking) return null;
+
+            var appointment = new Appointment
+            {
+                PatientId = patientId,
+                ConsultationHourId = consultationHourId,
+                Date = DateTime.Today,
+                Time = t
+            };
+
+            return await _appointmentRepository.CreateAsync(appointment);
         }
 
         return null;
-    }
-
-    public async Task Cancel(int id)
-    {
-        var a = await _db.Appointments.FindAsync(id);
-        if (a == null) return;
-
-        a.IsCancelled = true;
-        await _db.SaveChangesAsync();
     }
 }

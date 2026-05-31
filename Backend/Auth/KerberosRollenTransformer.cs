@@ -1,6 +1,6 @@
 ﻿using Backend.Model;
+using Backend.Repositories;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -8,11 +8,11 @@ namespace Backend.Auth;
 
 public class KerberosRollenTransformer : IClaimsTransformation
 {
-    private readonly DoctorDbContext _db;
+    private readonly IUserRepository _userRepository;
 
-    public KerberosRollenTransformer(DoctorDbContext db)
+    public KerberosRollenTransformer(IUserRepository userRepository)
     {
-        _db = db;
+        _userRepository = userRepository;
     }
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
@@ -22,13 +22,10 @@ public class KerberosRollenTransformer : IClaimsTransformation
             return principal;
 
         // "PRAXIS\dr.huber" → "dr.huber"
-        var username = identity.Name.Contains('\\')
-            ? identity.Name.Split('\\')[1].ToLower()
-            : identity.Name.ToLower();
+        var domainUsername = identity.Name ?? "";
 
         // Rolle aus deiner Users-Tabelle holen
-        var user = await _db.Users
-            .FirstOrDefaultAsync(u => u.Username == username && u.IsActive);
+        var user = await _userRepository.GetByDomainUsernameAsync(domainUsername);
 
         if (user == null)
             return principal; // Nicht in DB oder IsActive=0 → kein Zugriff

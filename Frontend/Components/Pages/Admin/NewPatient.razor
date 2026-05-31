@@ -1,66 +1,78 @@
-﻿@page "/admin/patient/new"
-@rendermode InteractiveServer
+﻿@page "/admin/patients/new"
+@layout ProtectedLayout
+
 @using Frontend.Models
-@inject HttpClient Http
+@using Frontend.Services
+
+@inject IAuthService Auth
+@inject IPatientService PatientService
 @inject NavigationManager Nav
 
-<h1>Neuen Patienten erstellen</h1>
-
-<div class="form-container">
-
-    <div class="form-group">
-        <label>Vorname</label>
-        <input @bind="patient.FirstName" />
-    </div>
-
-    <div class="form-group">
-        <label>Nachname</label>
-        <input @bind="patient.LastName" />
-    </div>
-
-    <div class="form-group">
-        <label>SV-Nummer</label>
-        <input @bind="patient.SocialSecurityNumber" />
-    </div>
-
-    <div class="form-group">
-        <label>Geburtsdatum</label>
-        <input type="date" @bind="patient.BirthDate" />
-    </div>
-
-    <div class="button-row">
-        <button class="save-btn" @onclick="Save">
-            💾 Speichern
-        </button>
-
-        <button class="cancel-btn" @onclick="Cancel">
-            ❌ Abbrechen
-        </button>
-    </div>
-
+<div class="page-header">
+    <h1>➕ Neuen Patienten erstellen</h1>
+    <p>Neuen Patienten hinzufügen</p>
 </div>
 
-@code {
+@if (!Auth.IsAdmin)
+{
+    <p style="color:red">Kein Zugriff.</p>
+}
+else
+{
+    <div class="form-card">
 
-    Patient patient = new()
+        <div class="form-group">
+            <label>Vorname</label>
+            <input class="form-input" @bind="_patient.FirstName" />
+        </div>
+
+        <div class="form-group">
+            <label>Nachname</label>
+            <input class="form-input" @bind="_patient.LastName" />
+        </div>
+
+        <div class="form-group">
+            <label>SV-Nummer</label>
+            <input class="form-input" @bind="_patient.SocialSecurityNumber" />
+        </div>
+
+        <div class="form-group">
+            <label>Geburtsdatum</label>
+            <input type="date" class="form-input" @bind="_patient.BirthDate" />
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-save" @onclick="Save">
+                💾 Speichern
+            </button>
+
+            <button class="btn-cancel" @onclick="Cancel">
+                ❌ Abbrechen
+            </button>
+        </div>
+
+    </div>
+}
+
+@code
+{
+    private PatientDto _patient = new()
     {
         BirthDate = DateTime.Now
     };
 
-    async Task Save()
+    private async Task Save()
     {
-        var result = await Http.PostAsJsonAsync(
-            "http://192.168.68.50:5000/api/patients",
-            patient);
+        var result = await PatientService.CreatePatientAsync(_patient);
 
-        if (result.IsSuccessStatusCode)
+        if (result != null)
         {
-            Nav.NavigateTo("/admin/patient");
+            Nav.NavigateTo("/admin/patients");
         }
     }
 
-    void Cancel()
+    private void Cancel()
     {
-        Nav.NavigateTo("/admin/patient");
+        Nav.NavigateTo("/admin/patients");
     }
 }

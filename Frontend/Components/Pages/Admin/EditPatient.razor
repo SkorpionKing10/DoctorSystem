@@ -1,79 +1,74 @@
-﻿@page "/admin/patient/edit/{Id:int}"
-@rendermode InteractiveServer
+﻿@page "/admin/patients/edit/{Id:int}"
+@layout ProtectedLayout
 @using Frontend.Models
-@inject HttpClient Http
+@using Frontend.Services
+@inject IAuthService Auth
+@inject IPatientService PatientService
 @inject NavigationManager Nav
 
-<h1>Patient bearbeiten</h1>
+<div class="page-header">
+    <h1>✏️ Patient bearbeiten</h1>
+    <p>Patientendaten ändern</p>
+</div>
 
-@if (patient == null)
+@if (!Auth.IsAdmin)
 {
-    <p>Laden...</p>
+    <p style="color:red">Kein Zugriff.</p>
+}
+else if (_patient == null)
+{
+    <p>Lade...</p>
 }
 else
 {
-    <div class="form-container">
+    <div class="form-card">
 
         <div class="form-group">
             <label>Vorname</label>
-            <input @bind="patient.FirstName" />
+            <input class="form-input" @bind="_patient.FirstName" />
         </div>
 
         <div class="form-group">
             <label>Nachname</label>
-            <input @bind="patient.LastName" />
+            <input class="form-input" @bind="_patient.LastName" />
         </div>
 
         <div class="form-group">
             <label>SV-Nummer</label>
-            <input @bind="patient.SocialSecurityNumber" />
+            <input class="form-input" @bind="_patient.SocialSecurityNumber" />
         </div>
 
         <div class="form-group">
             <label>Geburtsdatum</label>
-            <input type="date" @bind="patient.BirthDate" />
+            <input type="date" class="form-input" @bind="_patient.BirthDate" />
         </div>
 
-        <div class="button-row">
-            <button class="save-btn" @onclick="Save">
-                💾 Änderungen speichern
-            </button>
-
-            <button class="cancel-btn" @onclick="Cancel">
-                ❌ Abbrechen
-            </button>
+        <div class="form-actions">
+            <button class="btn-save" @onclick="Save">💾 Änderungen speichern</button>
+            <button class="btn-cancel" @onclick="Cancel">❌ Abbrechen</button>
         </div>
 
     </div>
 }
 
 @code {
-
     [Parameter]
     public int Id { get; set; }
 
-    Patient? patient;
+    PatientDto? _patient;
 
     protected override async Task OnInitializedAsync()
     {
-        patient = await Http.GetFromJsonAsync<Patient>(
-            $"http://192.168.68.50:5000/api/patients/{Id}");
+        _patient = await PatientService.GetPatientByIdAsync(Id);
     }
 
     async Task Save()
     {
-        var result = await Http.PutAsJsonAsync(
-            $"http://localhost:5264api/patients/{Id}",
-            patient);
-
-        if (result.IsSuccessStatusCode)
-        {
-            Nav.NavigateTo("/admin/patient");
-        }
+        if (_patient == null) return;
+        var success = await PatientService.UpdatePatientAsync(Id, _patient);
+        if (success)
+            Nav.NavigateTo("/admin/patients");
     }
 
-    void Cancel()
-    {
-        Nav.NavigateTo("/admin/patient");
-    }
+    void Cancel() => Nav.NavigateTo("/admin/patients");
 }

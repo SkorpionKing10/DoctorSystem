@@ -1,6 +1,7 @@
 ﻿@page "/"
+@using Frontend.Services;
+@inject IAuthService Auth
 @inject NavigationManager Nav
-@inject Frontend.Services.AuthService Auth
 
 @code {
     protected override async Task OnInitializedAsync()

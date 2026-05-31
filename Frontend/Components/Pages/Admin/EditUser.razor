@@ -1,10 +1,10 @@
 ﻿@page "/admin/users/edit/{Id:int}"
 @layout ProtectedLayout
-@inject HttpClient Http
-@inject NavigationManager Nav
-@using Frontend.Services
 @using Frontend.Models
-@inject AuthService Auth
+@using Frontend.Services
+@inject IAuthService Auth
+@inject IUserService UserService
+@inject NavigationManager Nav
 
 <div class="page-header">
     <h1>✏️ User bearbeiten</h1>
@@ -15,7 +15,7 @@
 {
     <p style="color:red">Kein Zugriff.</p>
 }
-else if (user == null)
+else if (_user == null)
 {
     <p>Lade...</p>
 }
@@ -24,97 +24,53 @@ else
     <div class="patient-card" style="flex-direction:column; align-items:stretch; gap:10px;">
 
         <label>Username</label>
-        <input @bind="user.Username" />
+        <input @bind="_user.Username" />
 
         <label>Rolle</label>
-        <select @bind="user.Role">
+        <select @bind="_user.Role">
             <option value="Admin">Admin</option>
             <option value="Doctor">Doctor</option>
             <option value="Staff">Staff</option>
         </select>
 
         <label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
-            <input type="checkbox" @bind="user.IsActive" />
+            <input type="checkbox" @bind="_user.IsActive" />
             Aktiv
         </label>
 
         <div style="display:flex; gap:10px; margin-top:15px;">
-
-            <button class="appt-badge" @onclick="SaveUser">
-                💾 Speichern
-            </button>
-
-            <button class="appt-badge cancelled" @onclick="GoBack">
-                ❌ Abbrechen
-            </button>
-
+            <button class="appt-badge" @onclick="SaveUser">💾 Speichern</button>
+            <button class="appt-badge cancelled" @onclick="GoBack">❌ Abbrechen</button>
         </div>
 
     </div>
 }
 
 @code {
-
     [Parameter]
     public int Id { get; set; }
 
-    UserDto? user;
+    UserDto? _user;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var users = await Http.GetFromJsonAsync<List<UserDto>>(
-                "http://192.168.68.50:5000/api/users");
-
-            user = users?.FirstOrDefault(x => x.Id == Id);
-        }
-        catch
-        {
-            user = null;
-        }
+        _user = await UserService.GetUserByIdAsync(Id);
     }
 
     async Task SaveUser()
     {
-        if (user == null) return;
+        if (_user == null) return;
 
-        await Http.PutAsJsonAsync(
-            $"http://192.168.68.50:5000/api/users/{user.Id}",
-            new UpdateUserDto
-            {
-                Username = user.Username,
-                Role = Enum.Parse<UserRole>(user.Role),
-                IsActive = user.IsActive
-            });
+        var dto = new UpdateUserDto
+        {
+            Username = _user.Username,
+            Role = _user.Role,
+            IsActive = _user.IsActive
+        };
 
+        await UserService.UpdateUserAsync(Id, dto);
         Nav.NavigateTo("/admin/users");
     }
 
-    void GoBack()
-    {
-        Nav.NavigateTo("/admin/users");
-    }
-
-    public class UserDto
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = "";
-        public string Role { get; set; } = "";
-        public bool IsActive { get; set; }
-    }
-
-    public class UpdateUserDto
-    {
-        public string Username { get; set; } = "";
-        public UserRole Role { get; set; }
-        public bool IsActive { get; set; }
-    }
-
-    public enum UserRole
-    {
-        Admin,
-        Doctor,
-        Staff
-    }
+    void GoBack() => Nav.NavigateTo("/admin/users");
 }

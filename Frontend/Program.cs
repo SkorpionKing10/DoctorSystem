@@ -9,8 +9,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpClient();
 
-// HttpClient mit UseDefaultCredentials = Kerberos-Ticket automatisch mitsenden
-builder.Services.AddScoped<AuthService>(sp =>
+// ── AuthService mit Kerberos ────────────────────────
+builder.Services.AddScoped<IAuthService>(sp =>
 {
     var handler = new HttpClientHandler
     {
@@ -18,27 +18,50 @@ builder.Services.AddScoped<AuthService>(sp =>
     };
     var http = new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://192.168.68.201:5040/")
+        BaseAddress = new Uri("http://192.168.68.50:5000/")
     };
     return new AuthService(http);
 });
 
-builder.Services.AddScoped<ApiService>(sp =>
+// ── Services mit Kerberos ───────────────────────────
+builder.Services.AddScoped<IAppointmentService>(sp =>
 {
-    var nav = sp.GetRequiredService<NavigationManager>();
-    return new ApiService(sp.GetRequiredService<IHttpClientFactory>());
+    var handler = new HttpClientHandler { UseDefaultCredentials = true };
+    var http = new HttpClient(handler)
+    {
+        BaseAddress = new Uri("http://192.168.68.50:5000/")
+    };
+    return new AppointmentService(http);
 });
 
-builder.Services.AddScoped(sp =>
+builder.Services.AddScoped<IPatientService>(sp =>
 {
-    var handler = new HttpClientHandler
+    var handler = new HttpClientHandler { UseDefaultCredentials = true };
+    var http = new HttpClient(handler)
     {
-        UseDefaultCredentials = true
+        BaseAddress = new Uri("http://192.168.68.50:5000/")
     };
-    return new HttpClient(handler)
+    return new PatientService(http);
+});
+
+builder.Services.AddScoped<IUserService>(sp =>
+{
+    var handler = new HttpClientHandler { UseDefaultCredentials = true };
+    var http = new HttpClient(handler)
     {
-        BaseAddress = new Uri("http://192.168.68.201:5040/")
+        BaseAddress = new Uri("http://192.168.68.50:5000/")
     };
+    return new UserService(http);
+});
+
+builder.Services.AddScoped<IConsultationHourService>(sp =>
+{
+    var handler = new HttpClientHandler { UseDefaultCredentials = true };
+    var http = new HttpClient(handler)
+    {
+        BaseAddress = new Uri("http://192.168.68.50:5000/")
+    };
+    return new ConsultationHourService(http);
 });
 
 var app = builder.Build();

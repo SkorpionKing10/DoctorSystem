@@ -1,9 +1,9 @@
 ﻿@page "/doctor"
 @layout ProtectedLayout
-@using Frontend.Services
 @using Frontend.Models
-@inject ApiService Api
-@inject AuthService Auth
+@using Frontend.Services
+@inject IAuthService Auth
+@inject IAppointmentService AppointmentService
 
 <div class="page-header">
     <h1>🩺 Doctor Dashboard</h1>
@@ -37,14 +37,17 @@ else
     {
         <div class="appointment-card">
             <div class="appt-avatar">
-                @(a.PatientName != null && a.PatientName.Length >= 2
-                    ? a.PatientName.Substring(0, 2).ToUpper()
+                @(a.ConsultationHourName != null && a.ConsultationHourName.Length >= 2
+                    ? a.ConsultationHourName.Substring(0, 2).ToUpper()
                     : "?")
             </div>
             <div class="appt-info">
-                <div class="appt-name">@(a.PatientName ?? "Unbekannt")</div>
+                <div class="appt-name">@(a.ConsultationHourName ?? "Unbekannt")</div>
                 <div class="appt-detail">
-                    @a.Date.ToShortDateString() · @a.Time
+                    @a.Date.ToShortDateString() · @a.Time.ToString(@"hh\:mm")
+                </div>
+                <div class="appt-detail" style="font-size:12px; color:#888;">
+                    @a.DoctorName
                 </div>
             </div>
             <span class="appt-badge @(a.IsCancelled ? "cancelled" : "")">
@@ -59,13 +62,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            appointments = await Api.GetAppointments();
-        }
-        catch
-        {
-            appointments = new();
-        }
+        appointments = await AppointmentService.GetAllAppointmentsAsync();
     }
 }

@@ -1,61 +1,70 @@
 ﻿using Backend.Model;
+using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/consultation-hours")]
 public class ConsultationHoursController : ControllerBase
 {
-    private readonly DoctorDbContext _db;
+    private readonly IConsultationHourService _consultationHourService;
 
-    public ConsultationHoursController(DoctorDbContext db)
+    public ConsultationHoursController(IConsultationHourService consultationHourService)
     {
-        _db = db;
+        _consultationHourService = consultationHourService;
     }
 
-    // Alle dürfen Sprechstunden sehen
     [Authorize(Policy = "DoctorOderStaff")]
     [HttpGet]
     public async Task<IActionResult> Get()
-        => Ok(await _db.ConsultationHours.ToListAsync());
+    {
+        var hours = await _consultationHourService.GetAllAsync();
+        return Ok(hours);
+    }
 
-    // Nur Admin darf Sprechstunden verwalten
+    [Authorize(Policy = "DoctorOderStaff")]
+    [HttpGet("free-slots/{consultationHourId}/{date}")]
+    public async Task<IActionResult> GetFreeSlots(int consultationHourId, DateTime date)
+    {
+        try
+        {
+            var freeSlots = await _consultationHourService.GetFreeSlotsAsync(consultationHourId, date);
+            return Ok(freeSlots);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [Authorize(Policy = "NurAdmin")]
     [HttpPost]
-    public async Task<IActionResult> Create(ConsultationHour c)
+    public async Task<IActionResult> Create([FromBody] ConsultationHour consultationHour)
     {
-        _db.ConsultationHours.Add(c);
-        await _db.SaveChangesAsync();
-        return Ok(c);
+        var created = await _consultationHourService.CreateAsync(consultationHour);
+        return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, ConsultationHour updated)
+    public async Task<IActionResult> Update(int id, [FromBody] ConsultationHour consultationHour)
     {
-        var c = await _db.ConsultationHours.FindAsync(id);
-        if (c == null) return NotFound();
-
-        c.Name = updated.Name;
-        c.StartTime = updated.StartTime;
-        c.EndTime = updated.EndTime;
-        c.DoctorId = updated.DoctorId;
-        c.SpecialtyId = updated.SpecialtyId;
-
-        await _db.SaveChangesAsync();
-        return Ok(c);
+        try
+        {
+            var updated = await _consultationHourService.UpdateAsync(id, consultationHour);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [Authorize(Policy = "NurAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var c = await _db.ConsultationHours.FindAsync(id);
-        if (c == null) return NotFound();
-
-        _db.ConsultationHours.Remove(c);
-        await _db.SaveChangesAsync();
+        await _consultationHourService.DeleteAsync(id);
         return Ok();
     }
 }

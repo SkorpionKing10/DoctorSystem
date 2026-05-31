@@ -1,12 +1,12 @@
 ﻿@page "/login"
-@layout Layout.LoginLayout
+@using Frontend.Services;
+@layout LoginLayout
+@inject IAuthService Auth
 @inject NavigationManager Nav
-@inject Frontend.Services.AuthService Auth
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        // Kein Login-Dialog mehr – direkt Kerberos prüfen
         await Auth.InitializeAsync();
 
         if (Auth.IsLoggedIn)

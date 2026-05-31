@@ -8,6 +8,6 @@ public class AppointmentDto
     public DateTime Date { get; set; }
     public TimeSpan Time { get; set; }
     public bool IsCancelled { get; set; }
-
-    public string? PatientName { get; set; }
+    public string? ConsultationHourName { get; set; }
+    public string? DoctorName { get; set; }
 }

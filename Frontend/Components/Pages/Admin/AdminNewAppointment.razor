@@ -1,8 +1,12 @@
 ﻿@page "/admin/appointments/new"
 @layout ProtectedLayout
-@inject HttpClient Http
-@using Frontend.Services;
-@inject AuthService Auth
+@using Frontend.Models
+@using Frontend.Services
+@inject IAuthService Auth
+@inject IAppointmentService AppointmentService
+@inject IPatientService PatientService
+@inject IConsultationHourService ConsultationHourService
+@inject NavigationManager Nav
 
 <div class="page-header">
     <h1>➕ Termin vergeben</h1>
@@ -15,152 +19,131 @@
 }
 else
 {
-    <div class="login-box" style="width:100%; max-width:500px;">
+    <div class="form-card" style="max-width:500px;">
 
-        <label>Patient</label>
-        <select @bind="selectedPatientId"
-                style="padding:10px; border-radius:8px; border:1px solid #ccc;">
-            <option value="0">-- Patient wählen --</option>
-            @foreach (var p in patients)
-            {
-                <option value="@p.Id">@p.FirstName @p.LastName</option>
-            }
-        </select>
-
-        <label>Sprechstunde</label>
-        <select @bind="selectedConsultationHourId"
-                @bind:after="LoadFreeSlots"
-                style="padding:10px; border-radius:8px; border:1px solid #ccc;">
-            <option value="0">-- Sprechstunde wählen --</option>
-            @foreach (var c in consultationHours)
-            {
-                <option value="@c.Id">@c.Name</option>
-            }
-        </select>
-
-        <label>Datum</label>
-        <input type="date"
-               @bind="selectedDate"
-               @bind:after="LoadFreeSlots" />
-
-        @if (freeSlots.Any())
-        {
-            <label>Freie Zeitslots</label>
-            <select @bind="selectedTime"
-                    style="padding:10px; border-radius:8px; border:1px solid #ccc;">
-                <option value="">-- Zeit wählen --</option>
-                @foreach (var s in freeSlots)
+        <div class="form-group">
+            <label>Patient</label>
+            <select class="form-input" @bind="_selectedPatientId">
+                <option value="0">-- Patient wählen --</option>
+                @foreach (var p in _patients)
                 {
-                    <option value="@s">@s</option>
+                    <option value="@p.Id">@p.FirstName @p.LastName</option>
                 }
             </select>
+        </div>
+
+        <div class="form-group">
+            <label>Sprechstunde</label>
+            <select class="form-input"
+                    @bind="_selectedConsultationHourId"
+                    @bind:after="LoadFreeSlots">
+                <option value="0">-- Sprechstunde wählen --</option>
+                @foreach (var c in _consultationHours)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Datum</label>
+            <input type="date"
+                   class="form-input"
+                   @bind="_selectedDate"
+                   @bind:after="LoadFreeSlots" />
+        </div>
+
+        @if (_freeSlots.Any())
+        {
+            <div class="form-group">
+                <label>Freie Zeitslots</label>
+                <select class="form-input" @bind="_selectedTime">
+                    <option value="">-- Zeit wählen --</option>
+                    @foreach (var s in _freeSlots)
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </select>
+            </div>
         }
-        else if (selectedConsultationHourId > 0)
+        else if (_selectedConsultationHourId > 0)
         {
             <p style="color:#888; font-size:13px;">
                 Keine freien Slots an diesem Tag.
             </p>
         }
 
-        @if (!string.IsNullOrEmpty(message))
+        @if (!string.IsNullOrEmpty(_message))
         {
-            <p style="color:@(success ? "green" : "red"); font-size:13px;">
-                @message
-            </p>
+            <div class="alert @(_success ? "alert-success" : "alert-error")">
+                @(_success ? "✅" : "⚠️") @_message
+            </div>
         }
 
-        <button @onclick="BookAppointment">✅ Termin buchen</button>
+        <div class="form-actions">
+            <button class="btn-save" @onclick="BookAppointment">✅ Termin buchen</button>
+            <button class="btn-cancel"
+                    @onclick="@(() => Nav.NavigateTo("/admin/appointments"))">
+                ❌ Abbrechen
+            </button>
+        </div>
+
     </div>
 }
 
 @code {
-    List<PatientDto> patients = new();
-    List<ConsultationHourDto> consultationHours = new();
-    List<string> freeSlots = new();
+    List<PatientDto> _patients = new();
+    List<ConsultationHourDto> _consultationHours = new();
+    List<string> _freeSlots = new();
 
-    int selectedPatientId = 0;
-    int selectedConsultationHourId = 0;
-    DateTime selectedDate = DateTime.Today;
-    string selectedTime = "";
-    string message = "";
-    bool success = false;
+    int _selectedPatientId = 0;
+    int _selectedConsultationHourId = 0;
+    DateTime _selectedDate = DateTime.Today;
+    string _selectedTime = "";
+    string _message = "";
+    bool _success = false;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            patients = await Http.GetFromJsonAsync<List<PatientDto>>(
-                "http://192.168.68.50:5000/api/patients") ?? new();
-            consultationHours = await Http.GetFromJsonAsync<List<ConsultationHourDto>>(
-                "http://192.168.68.50:5000/api/consultation-hours") ?? new();
-        }
-        catch { }
+        _patients = await PatientService.GetAllPatientsAsync();
+        _consultationHours = await ConsultationHourService.GetAllAsync();
     }
 
     async Task LoadFreeSlots()
     {
-        if (selectedConsultationHourId == 0) return;
-        try
-        {
-            var dateStr = selectedDate.ToString("yyyy-MM-dd");
-            freeSlots = await Http.GetFromJsonAsync<List<string>>(
-                $"http://192.168.68.50:5000/api/appointments/free-slots/{selectedConsultationHourId}/{dateStr}")
-                ?? new();
-        }
-        catch
-        {
-            freeSlots = new();
-        }
+        if (_selectedConsultationHourId == 0) return;
+        _freeSlots = await AppointmentService.GetFreeSlotsAsync(_selectedConsultationHourId, _selectedDate);
     }
 
     async Task BookAppointment()
     {
-        if (selectedPatientId == 0 || selectedConsultationHourId == 0
-            || string.IsNullOrEmpty(selectedTime))
+        if (_selectedPatientId == 0 || _selectedConsultationHourId == 0 || string.IsNullOrEmpty(_selectedTime))
         {
-            message = "Bitte alle Felder ausfüllen.";
-            success = false;
+            _message = "Bitte alle Felder ausfüllen.";
+            _success = false;
             return;
         }
 
-        var dto = new
+        var dto = new AppointmentCreateDto
         {
-            PatientId = selectedPatientId,
-            ConsultationHourId = selectedConsultationHourId,
-            Date = selectedDate,
-            Time = TimeSpan.Parse(selectedTime)
+            PatientId = _selectedPatientId,
+            ConsultationHourId = _selectedConsultationHourId,
+            Date = _selectedDate,
+            Time = TimeSpan.Parse(_selectedTime)
         };
 
-        var response = await Http.PostAsJsonAsync(
-            "http://192.168.68.50:5000/api/appointments", dto);
-
-        if (response.IsSuccessStatusCode)
+        var result = await AppointmentService.CreateAppointmentAsync(dto);
+        if (result != null)
         {
-            message = "Termin erfolgreich gebucht!";
-            success = true;
-            selectedTime = "";
+            _message = "Termin erfolgreich gebucht!";
+            _success = true;
+            _selectedTime = "";
             await LoadFreeSlots();
         }
         else
         {
-            var err = await response.Content.ReadAsStringAsync();
-            message = err.Contains("Zeitslot")
-                ? "Dieser Zeitslot ist bereits vergeben."
-                : "Fehler beim Buchen.";
-            success = false;
+            _message = "Fehler beim Buchen.";
+            _success = false;
         }
-    }
-
-    class PatientDto
-    {
-        public int Id { get; set; }
-        public string FirstName { get; set; } = "";
-        public string LastName { get; set; } = "";
-    }
-
-    class ConsultationHourDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = "";
     }
 }

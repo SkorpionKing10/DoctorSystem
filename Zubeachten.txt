@@ -1,0 +1,6 @@
+Client User: admin.mueller	P@ssw0rd123!
+		dr.huber	P@ssw0rd123!
+SQL-Server: PW: sql1
+	    SSMS: User: sa PW: SkorpionKing10
+Win-Server: PW: SkorpionKing10
+Auf den Clients muss der Inhalt vom Git Repo sein (C#-Code mit Git Clone herunterholen und ausführen dr.huber und admin.mueller haben bereits git installiert und dotnet). Anschließend mit dotnet run ausführen. Läuft dann unter 192.168.68.50:5001. Die SQL-Server vmdk ist die DoctorSystem.vmdk

@@ -1,96 +1,64 @@
-﻿@page "/admin/patient"
-@rendermode InteractiveServer
+﻿@page "/admin/patients"
+@layout ProtectedLayout
 @using Frontend.Models
-@inject HttpClient Http
+@using Frontend.Services
+@inject IAuthService Auth
+@inject IPatientService PatientService
 @inject NavigationManager Nav
 
-<h1>Patientenverwaltung</h1>
-
-<div class="top-bar">
-    <button class="new-btn" @onclick="CreateNew">
-        ➕ Neuer Patient
-    </button>
+<div class="page-header">
+    <h1>🧑 Patientenverwaltung</h1>
+    <p>Alle registrierten Patienten</p>
 </div>
 
-@if (patients == null)
+@if (!Auth.IsAdmin)
 {
-    <p>Laden...</p>
+    <p style="color:red">Kein Zugriff.</p>
 }
-else if (!patients.Any())
+else if (patients == null)
 {
-    <p>Keine Patienten gefunden.</p>
+    <p>Lade...</p>
 }
 else
 {
-    <table class="patient-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Vorname</th>
-                <th>Nachname</th>
-                <th>SV-Nummer</th>
-                <th>Geburtsdatum</th>
-                <th>Aktionen</th>
-            </tr>
-        </thead>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="section-title">@patients.Count Patienten</div>
+        <button class="appt-badge" @onclick="CreateNew">➕ Neuer Patient</button>
+    </div>
 
-        <tbody>
-            @foreach (var p in patients)
-            {
-                <tr>
-                    <td>@p.Id</td>
-                    <td>@p.FirstName</td>
-                    <td>@p.LastName</td>
-                    <td>@p.SocialSecurityNumber</td>
-                    <td>@p.BirthDate.ToString("dd.MM.yyyy")</td>
-                    <td>
-                        <button class="edit-btn"
-                                @onclick="() => EditPatient(p.Id)">
-                            ✏️ Bearbeiten
-                        </button>
-
-                        <button class="delete-btn"
-                                @onclick="() => DeletePatient(p.Id)">
-                            🗑 Löschen
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @foreach (var p in patients)
+    {
+        <div class="patient-card">
+            <div class="patient-avatar">
+                @(p.FirstName[0].ToString().ToUpper())@(p.LastName[0].ToString().ToUpper())
+            </div>
+            <div style="flex:1">
+                <div class="patient-name">@p.FirstName @p.LastName</div>
+                <div class="patient-svn">SVN: @p.SocialSecurityNumber · @p.BirthDate.ToString("dd.MM.yyyy")</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="appt-badge" @onclick="() => EditPatient(p.Id)">✏️ Bearbeiten</button>
+                <button class="appt-badge cancelled" @onclick="() => DeletePatient(p.Id)">🗑 Löschen</button>
+            </div>
+        </div>
+    }
 }
 
 @code {
-
-    List<Patient>? patients;
+    List<PatientDto>? patients;
 
     protected override async Task OnInitializedAsync()
     {
-        patients = await Http.GetFromJsonAsync<List<Patient>>(
-            "http://192.168.68.50:5000/api/patients");
+        patients = await PatientService.GetAllPatientsAsync();
     }
 
-    void CreateNew()
-    {
-        Nav.NavigateTo("/admin/patient/new");
-    }
-
-    void EditPatient(int id)
-    {
-        Nav.NavigateTo($"/admin/patient/edit/{id}");
-    }
+    void CreateNew() => Nav.NavigateTo("/admin/patients/new");
+    void EditPatient(int id) => Nav.NavigateTo($"/admin/patients/edit/{id}");
 
     async Task DeletePatient(int id)
     {
-        var result = await Http.DeleteAsync($"http://192.168.68.50:5000/api/patients/{id}");
-
-        if (result.IsSuccessStatusCode)
-        {
-            var patient = patients?
-                .FirstOrDefault(x => x.Id == id);
-
-            if (patient != null)
-                patients!.Remove(patient);
-        }
+        var success = await PatientService.DeletePatientAsync(id);
+        if (success)
+            patients?.RemoveAll(x => x.Id == id);
     }
 }

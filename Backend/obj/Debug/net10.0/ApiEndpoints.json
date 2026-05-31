@@ -39,7 +39,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updated",
+        "Name": "appointment",
         "Type": "Backend.Model.Appointment",
         "IsRequired": true
       }
@@ -101,23 +101,12 @@
   },
   {
     "ContainingType": "AppointmentsController",
-    "Method": "GetFreeSlots",
-    "RelativePath": "api/appointments/free-slots/{consultationHourId}/{date}",
+    "Method": "GetMyAppointments",
+    "RelativePath": "api/appointments/my-appointments",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [
-      {
-        "Name": "consultationHourId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "date",
-        "Type": "System.DateTime",
-        "IsRequired": true
-      }
-    ],
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -163,16 +152,6 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "AuthController",
-    "Method": "Seed",
-    "RelativePath": "api/auth/seed",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "ConsultationHoursController",
     "Method": "Get",
     "RelativePath": "api/consultation-hours",
@@ -191,7 +170,7 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "c",
+        "Name": "consultationHour",
         "Type": "Backend.Model.ConsultationHour",
         "IsRequired": true
       }
@@ -212,7 +191,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updated",
+        "Name": "consultationHour",
         "Type": "Backend.Model.ConsultationHour",
         "IsRequired": true
       }
@@ -236,6 +215,27 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "ConsultationHoursController",
+    "Method": "GetFreeSlots",
+    "RelativePath": "api/consultation-hours/free-slots/{consultationHourId}/{date}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "consultationHourId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "date",
+        "Type": "System.DateTime",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DoctorsController",
     "Method": "Get",
     "RelativePath": "api/doctors",
@@ -254,7 +254,7 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "d",
+        "Name": "doctor",
         "Type": "Backend.Model.Doctor",
         "IsRequired": true
       }
@@ -275,7 +275,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updated",
+        "Name": "doctor",
         "Type": "Backend.Model.Doctor",
         "IsRequired": true
       }
@@ -317,7 +317,7 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "p",
+        "Name": "patient",
         "Type": "Backend.Model.Patient",
         "IsRequired": true
       }
@@ -354,7 +354,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updated",
+        "Name": "patient",
         "Type": "Backend.Model.Patient",
         "IsRequired": true
       }
@@ -394,7 +394,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Backend.Controllers.UsersController",
+    "ContainingType": "UsersController",
     "Method": "Get",
     "RelativePath": "api/users",
     "HttpMethod": "GET",
@@ -404,7 +404,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Backend.Controllers.UsersController",
+    "ContainingType": "UsersController",
     "Method": "Create",
     "RelativePath": "api/users",
     "HttpMethod": "POST",
@@ -413,14 +413,14 @@
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "Backend.Controllers.CreateUserDto",
+        "Type": "Backend.Model.CreateUserDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Backend.Controllers.UsersController",
+    "ContainingType": "UsersController",
     "Method": "Update",
     "RelativePath": "api/users/{id}",
     "HttpMethod": "PUT",
@@ -441,7 +441,7 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Backend.Controllers.UsersController",
+    "ContainingType": "UsersController",
     "Method": "Delete",
     "RelativePath": "api/users/{id}",
     "HttpMethod": "DELETE",
