@@ -19,6 +19,13 @@ else if (patients == null)
 {
     <p>Lade...</p>
 }
+else if (patients.Count == 0)
+{
+    <p style="color:orange;">
+        ⚠️ Keine Patienten vorhanden.
+        <button class="appt-badge" @onclick="CreateNew">➕ Neuen Patient erstellen</button>
+    </p>
+}
 else
 {
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -49,7 +56,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Patients/Index: OnInitializedAsync");
         patients = await PatientService.GetAllPatientsAsync();
+        Console.WriteLine($"Patients/Index: Loaded {patients?.Count ?? 0} patients");
     }
 
     void CreateNew() => Nav.NavigateTo("/admin/patients/new");
@@ -57,8 +66,12 @@ else
 
     async Task DeletePatient(int id)
     {
+        Console.WriteLine($"DeletePatient: Deleting patient {id}");
         var success = await PatientService.DeletePatientAsync(id);
         if (success)
+        {
             patients?.RemoveAll(x => x.Id == id);
+            Console.WriteLine($"DeletePatient: Success");
+        }
     }
 }

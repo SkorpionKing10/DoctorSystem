@@ -14,18 +14,36 @@ public class UserService : IUserService
 
     public async Task<List<UserDto>> GetAllUsersAsync()
     {
-        try { return await _http.GetFromJsonAsync<List<UserDto>>("api/users") ?? new(); }
-        catch { return new(); }
+        try
+        {
+            var response = await _http.GetAsync("api/users");
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"GetAllUsersAsync Error: {response.StatusCode}");
+                return new();
+            }
+            var users = await response.Content.ReadFromJsonAsync<List<UserDto>>();
+            return users ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetAllUsersAsync Exception: {ex.Message}");
+            return new();
+        }
     }
 
     public async Task<UserDto?> GetUserByIdAsync(int id)
     {
         try
         {
-            var users = await _http.GetFromJsonAsync<List<UserDto>>("api/users");
-            return users?.FirstOrDefault(u => u.Id == id);
+            var users = await GetAllUsersAsync();
+            return users.FirstOrDefault(u => u.Id == id);
         }
-        catch { return null; }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetUserByIdAsync Exception: {ex.Message}");
+            return null;
+        }
     }
 
     public async Task<UserDto?> CreateUserAsync(CreateUserDto dto)
@@ -33,21 +51,44 @@ public class UserService : IUserService
         try
         {
             var response = await _http.PostAsJsonAsync("api/users", dto);
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadFromJsonAsync<UserDto>(); // ✓ fix
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"CreateUserAsync Error: {response.StatusCode} - {error}");
+                return null;
+            }
+            return await response.Content.ReadFromJsonAsync<UserDto>();
         }
-        catch { }
-        return null;
+        catch (Exception ex)
+        {
+            Console.WriteLine($"CreateUserAsync Exception: {ex.Message}");
+            return null;
+        }
     }
 
     public async Task<bool> UpdateUserAsync(int id, UpdateUserDto dto)
     {
         try
         {
+            Console.WriteLine($"UpdateUserAsync: ID={id}, Username={dto.Username}, Role={dto.Role}, IsActive={dto.IsActive}");
+
             var response = await _http.PutAsJsonAsync($"api/users/{id}", dto);
-            return response.IsSuccessStatusCode;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"UpdateUserAsync Error: {response.StatusCode} - {error}");
+                return false;
+            }
+
+            Console.WriteLine("UpdateUserAsync Success");
+            return true;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UpdateUserAsync Exception: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task<bool> DeleteUserAsync(int id)
@@ -55,8 +96,17 @@ public class UserService : IUserService
         try
         {
             var response = await _http.DeleteAsync($"api/users/{id}");
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"DeleteUserAsync Error: {response.StatusCode}");
+                return false;
+            }
+            return true;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DeleteUserAsync Exception: {ex.Message}");
+            return false;
+        }
     }
 }

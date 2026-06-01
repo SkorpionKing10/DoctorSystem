@@ -21,56 +21,129 @@ else if (_user == null)
 }
 else
 {
-    <div class="patient-card" style="flex-direction:column; align-items:stretch; gap:10px;">
+    <div class="form-card" style="max-width:500px;">
 
-        <label>Username</label>
-        <input @bind="_user.Username" />
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-error">⚠️ @_errorMessage</div>
+        }
 
-        <label>Rolle</label>
-        <select @bind="_user.Role">
-            <option value="Admin">Admin</option>
-            <option value="Doctor">Doctor</option>
-            <option value="Staff">Staff</option>
-        </select>
+        @if (_successMessage)
+        {
+            <div class="alert alert-success">✅ Benutzer erfolgreich aktualisiert!</div>
+        }
 
-        <label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
-            <input type="checkbox" @bind="_user.IsActive" />
-            Aktiv
-        </label>
+        <div class="form-group">
+            <label>Username</label>
+            <input class="form-input" @bind="_user.Username" />
+        </div>
 
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="appt-badge" @onclick="SaveUser">💾 Speichern</button>
-            <button class="appt-badge cancelled" @onclick="GoBack">❌ Abbrechen</button>
+        <div class="form-group">
+            <label>Rolle</label>
+            <select class="form-input" @bind="_user.Role">
+                <option value="Admin">Admin</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Staff">Staff</option>
+            </select>
+        </div>
+
+        <div class="checkbox-row">
+            <input type="checkbox" id="isActive" @bind="_user.IsActive" />
+            <label for="isActive">Aktiv</label>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-save" @onclick="SaveUser" disabled="@_isSaving">
+                @(_isSaving ? "Speichern..." : "💾 Speichern")
+            </button>
+            <button class="btn-cancel" @onclick="GoBack">❌ Abbrechen</button>
         </div>
 
     </div>
 }
 
 @code {
+
     [Parameter]
     public int Id { get; set; }
 
     UserDto? _user;
+    string? _errorMessage;
+    bool _successMessage = false;
+    bool _isSaving = false;
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine($"Users/Edit: Loading user {Id}");
         _user = await UserService.GetUserByIdAsync(Id);
+
+        if (_user == null)
+        {
+            Console.WriteLine($"Users/Edit: User {Id} not found");
+            _errorMessage = "Benutzer nicht gefunden.";
+        }
+        else
+        {
+            Console.WriteLine($"Users/Edit: Loaded user {_user.Username}");
+        }
     }
 
     async Task SaveUser()
     {
-        if (_user == null) return;
+        _errorMessage = null;
+        _successMessage = false;
 
-        var dto = new UpdateUserDto
+        if (_user == null)
         {
-            Username = _user.Username,
-            Role = _user.Role,
-            IsActive = _user.IsActive
-        };
+            _errorMessage = "Benutzer nicht geladen.";
+            return;
+        }
 
-        await UserService.UpdateUserAsync(Id, dto);
-        Nav.NavigateTo("/admin/users");
+        if (string.IsNullOrWhiteSpace(_user.Username))
+        {
+            _errorMessage = "Benutzername darf nicht leer sein.";
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            var dto = new UpdateUserDto
+            {
+                Username = _user.Username,
+                Role = _user.Role,
+                IsActive = _user.IsActive
+            };
+
+            Console.WriteLine($"SaveUser: Updating user {Id}");
+            var success = await UserService.UpdateUserAsync(Id, dto);
+
+            if (success)
+            {
+                Console.WriteLine($"SaveUser: Success");
+                _successMessage = true;
+                await Task.Delay(1500);
+                Nav.NavigateTo("/admin/users");
+            }
+            else
+            {
+                _errorMessage = "Fehler beim Speichern. Bitte erneut versuchen.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SaveUser Exception: {ex.Message}");
+            _errorMessage = $"Fehler: {ex.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
     }
 
-    void GoBack() => Nav.NavigateTo("/admin/users");
+    void GoBack()
+    {
+        Nav.NavigateTo("/admin/users");
+    }
 }

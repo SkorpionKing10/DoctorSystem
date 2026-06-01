@@ -19,6 +19,10 @@ else if (users == null)
 {
     <p>Lade...</p>
 }
+else if (users.Count == 0)
+{
+    <p style="color:orange;">⚠️ Keine Benutzer vorhanden.</p>
+}
 else
 {
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -31,43 +35,69 @@ else
     @foreach (var u in users)
     {
         <div class="patient-card">
+
             <div class="patient-avatar">
                 @u.Username?.Substring(0, 1).ToUpper()
             </div>
+
             <div style="flex:1">
                 <div class="patient-name">@u.Username</div>
+
                 <div class="patient-svn">
-                    Rolle: @u.Role · @(u.IsActive ? "Aktiv" : "Inaktiv")
+                    Rolle: @u.Role ·
+                    @(u.IsActive ? "Aktiv" : "Inaktiv")
                 </div>
             </div>
+
             <div style="display:flex; gap:8px;">
+
                 <button class="appt-badge" @onclick="() => EditUser(u.Id)">
                     ✏️ Bearbeiten
                 </button>
+
                 <button class="appt-badge cancelled" @onclick="() => DeleteUser(u.Id)">
                     🗑 Löschen
                 </button>
+
             </div>
         </div>
     }
 }
 
 @code {
+
     List<UserDto>? users;
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Users/Index: OnInitializedAsync");
         users = await UserService.GetAllUsersAsync();
+        Console.WriteLine($"Users/Index: Loaded {users?.Count ?? 0} users");
     }
 
-    void AddUser() => Nav.NavigateTo("/admin/users/add");
+    void AddUser()
+    {
+        Nav.NavigateTo("/admin/users/add");
+    }
 
-    void EditUser(int id) => Nav.NavigateTo($"/admin/users/edit/{id}");
+    void EditUser(int id)
+    {
+        Console.WriteLine($"EditUser: Navigating to edit/{id}");
+        Nav.NavigateTo($"/admin/users/edit/{id}");
+    }
 
     async Task DeleteUser(int id)
     {
+        Console.WriteLine($"DeleteUser: Deleting user {id}");
         var success = await UserService.DeleteUserAsync(id);
         if (success)
+        {
             users?.RemoveAll(x => x.Id == id);
+            Console.WriteLine($"DeleteUser: Success");
+        }
+        else
+        {
+            Console.WriteLine($"DeleteUser: Failed");
+        }
     }
 }
