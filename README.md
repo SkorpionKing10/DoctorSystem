@@ -17,32 +17,26 @@ Ein C# .NET-Anwendungssystem zur Verwaltung von Patientendaten, Terminen und med
  
 ```bash
 # Repository klonen
-git clone https://github.com/username/arztpraxis.git
-cd arztpraxis
- 
-# Dependencies wiederherstellen
-dotnet restore
- 
-# Datenbank migrieren
-dotnet ef database update
- 
+git clone [https://github.com/username/arztpraxis.git](https://github.com/SkorpionKing10/DoctorSystem.git)
+cd DoctorSystem
+
 # Anwendung starten
+cd Backend
+dotnet run
+cd Frontend
 dotnet run
 ```
  
 ## Verwendung
  
 1. Starten Sie die Anwendung
-2. Melden Sie sich mit Ihren Zugangsdaten an
+2. Sie werden automatisch mit Kerberos und NTML angemeldet
 3. Verwalten Sie Patienten und Termine über das Dashboard
 ## Beiträge
  
-Beiträge sind willkommen! Bitte erstellen Sie einen Fork und öffnen Sie einen Pull Request.
+Diese Repo darf nicht kopiert oder generell verwendet werden. Weder Privat noch Öffentlich.
  
-## Lizenz
- 
-MIT License - siehe [LICENSE](LICENSE) für Details.
  
 ---
  
-**Author:** [Dein Name](https://github.com/dein-username)
+**Author:** Valentin Aumayr (SkorpionKing10)
