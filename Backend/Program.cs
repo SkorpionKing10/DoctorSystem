@@ -33,6 +33,7 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IConsultationHourService, ConsultationHourService>();
 
 // ── Autorisierung ────────────────────────────────────────────
+// ── Autorisierung ────────────────────────────────────────────
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("NurAdmin", p => p.RequireRole("Admin"));
@@ -40,12 +41,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("NurStaff", p => p.RequireRole("Staff"));
     options.AddPolicy("DoctorOderStaff", p => p.RequireRole("Doctor", "Staff"));
     options.AddPolicy("DoctorOderAdmin", p => p.RequireRole("Doctor", "Admin"));
-
+    options.AddPolicy("DoctorOderStaffOderAdmin", p => p.RequireRole("Doctor", "Staff", "Admin")); // ✅ NEU!
+    
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
-
 // ── API ──────────────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

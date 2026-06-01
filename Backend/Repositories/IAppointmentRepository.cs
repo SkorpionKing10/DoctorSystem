@@ -14,4 +14,5 @@ public interface IAppointmentRepository
     Task DeleteAsync(int id);
     Task<bool> HasConflictAsync(int consultationHourId, DateTime date, TimeSpan time);
     Task<bool> HasDoubleBookingAsync(int patientId, DateTime date);
+    Task<List<TimeSpan>> GetBookedSlotsAsync(int consultationHourId, DateOnly date);
 }

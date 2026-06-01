@@ -42,7 +42,7 @@ public class AppointmentsController : ControllerBase
         }
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    [Authorize(Policy = "DoctorOderStaffOderAdmin")]
     [HttpGet("patient/{patientId}")]
     public async Task<IActionResult> GetByPatient(int patientId)
     {
@@ -50,7 +50,7 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    [Authorize(Policy = "DoctorOderStaffOderAdmin")]
     [HttpPost("book")]
     public async Task<IActionResult> Book(int patientId, int consultationHourId)
     {
@@ -65,7 +65,7 @@ public class AppointmentsController : ControllerBase
         }
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    [Authorize(Policy = "DoctorOderStaffOderAdmin")]  // ✅
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AppointmentCreateDto dto)
     {
@@ -95,7 +95,7 @@ public class AppointmentsController : ControllerBase
         }
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    [Authorize(Policy = "DoctorOderStaffOderAdmin")]
     [HttpPost("cancel/{id}")]
     public async Task<IActionResult> Cancel(int id)
     {
@@ -117,4 +117,16 @@ public class AppointmentsController : ControllerBase
         await _appointmentService.DeleteAsync(id);
         return Ok();
     }
+    
+    [Authorize(Policy = "DoctorOderAdmin")]
+    [HttpGet("free-slots/{consultationHourId}/{date}")]
+    public async Task<IActionResult> GetFreeSlots(int consultationHourId, string date)
+    {
+        if (!DateOnly.TryParse(date, out var parsedDate))
+            return BadRequest(new { message = "Ungültiges Datum." });
+
+        var slots = await _appointmentService.GetFreeSlotsAsync(consultationHourId, parsedDate);
+        return Ok(slots);
+    }
+
 }

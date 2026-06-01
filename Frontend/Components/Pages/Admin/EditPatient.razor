@@ -67,8 +67,8 @@ else
         if (_patient == null) return;
         var success = await PatientService.UpdatePatientAsync(Id, _patient);
         if (success)
-            Nav.NavigateTo("/admin/patients");
+            Nav.NavigateTo("/admin/patient");
     }
 
-    void Cancel() => Nav.NavigateTo("/admin/patients");
+    void Cancel() => Nav.NavigateTo("/admin/patient");
 }

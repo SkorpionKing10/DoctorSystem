@@ -1,6 +1,8 @@
 ﻿@page "/patients"
 @layout ProtectedLayout
-@inject HttpClient Http
+@using Frontend.Models
+@using Frontend.Services
+@inject IPatientService PatientService
 
 <div class="page-header">
     <h1>🧑 Patienten</h1>
@@ -14,7 +16,6 @@
 else
 {
     <div class="section-title">@patients.Count Patienten gefunden</div>
-
     @foreach (var p in patients)
     {
         <div class="patient-card">
@@ -34,21 +35,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            patients = await Http.GetFromJsonAsync<List<PatientDto>>(
-                "http://192.168.68.50:5000/api/patients");
-        }
-        catch
-        {
-            patients = new();
-        }
-    }
-
-    class PatientDto
-    {
-        public string FirstName { get; set; } = "";
-        public string LastName { get; set; } = "";
-        public string SocialSecurityNumber { get; set; } = "";
+        patients = await PatientService.GetAllPatientsAsync();
     }
 }

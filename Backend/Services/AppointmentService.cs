@@ -112,4 +112,27 @@ public class AppointmentService : IAppointmentService
 
         return null;
     }
+
+    // ✅ NEU: Gibt alle freien 15-Minuten-Slots für eine Sprechstunde an einem Tag zurück
+    public async Task<List<string>> GetFreeSlotsAsync(int consultationHourId, DateOnly date)
+    {
+        var ch = await _consultationHourRepository.GetByIdAsync(consultationHourId);
+        if (ch == null || !ch.IsActive) return new();
+
+        // Gebuchte Slots laden
+        var booked = await _appointmentRepository.GetBookedSlotsAsync(consultationHourId, date);
+
+        var result = new List<string>();
+        var current = ch.StartTime;
+
+        while (current < ch.EndTime)
+        {
+            if (!booked.Contains(current))
+                result.Add(current.ToString(@"hh\:mm"));
+
+            current = current.Add(TimeSpan.FromMinutes(15));
+        }
+
+        return result;
+    }
 }

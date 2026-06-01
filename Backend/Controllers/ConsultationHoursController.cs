@@ -14,26 +14,32 @@ public class ConsultationHoursController : ControllerBase
         _consultationHourService = consultationHourService;
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    // ✅ Admin auch erlaubt!
+    [Authorize(Policy = "DoctorOderStaffOderAdmin")]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
+        Console.WriteLine("ConsultationHoursController.Get: Called");
         var hours = await _consultationHourService.GetAllAsync();
+        Console.WriteLine($"ConsultationHoursController.Get: Returned {hours?.Count ?? 0} consultation hours");
         return Ok(hours);
     }
 
-    [Authorize(Policy = "DoctorOderStaff")]
+    [Authorize(Policy = "DoctorOderStaffOderAdmin")]
     [HttpGet("free-slots/{consultationHourId}/{date}")]
     public async Task<IActionResult> GetFreeSlots(int consultationHourId, DateTime date)
     {
+        Console.WriteLine($"GetFreeSlots: consultationHourId={consultationHourId}, date={date}");
         try
         {
             var freeSlots = await _consultationHourService.GetFreeSlotsAsync(consultationHourId, date);
+            Console.WriteLine($"GetFreeSlots: Found {freeSlots?.Count ?? 0} free slots");
             return Ok(freeSlots);
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
-            return NotFound();
+            Console.WriteLine($"GetFreeSlots Exception: {ex.Message}");
+            return NotFound(new { message = ex.Message });
         }
     }
 

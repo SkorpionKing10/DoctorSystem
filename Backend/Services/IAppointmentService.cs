@@ -13,4 +13,5 @@ public interface IAppointmentService
     Task CancelAsync(int id);
     Task DeleteAsync(int id);
     Task<Appointment?> BookNextAvailableAsync(int patientId, int consultationHourId);
+    Task<List<string>> GetFreeSlotsAsync(int consultationHourId, DateOnly date);
 }

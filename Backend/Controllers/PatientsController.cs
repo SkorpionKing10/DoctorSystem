@@ -18,7 +18,12 @@ public class PatientsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
+        Console.WriteLine("PatientsController.Get: Called");
+
         var patients = await _patientService.GetAllAsync();
+
+        Console.WriteLine($"PatientsController.Get: Returned {patients?.Count ?? 0} patients");
+
         return Ok(patients);
     }
 
@@ -27,7 +32,10 @@ public class PatientsController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var patient = await _patientService.GetByIdAsync(id);
-        if (patient == null) return NotFound();
+
+        if (patient == null)
+            return NotFound();
+
         return Ok(patient);
     }
 
@@ -36,7 +44,11 @@ public class PatientsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] Patient patient)
     {
         var created = await _patientService.CreateAsync(patient);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = created.Id },
+            created);
     }
 
     [Authorize(Policy = "NurAdmin")]
@@ -66,8 +78,35 @@ public class PatientsController : ControllerBase
     [HttpGet("by-username/{username}")]
     public async Task<IActionResult> GetByUsername(string username)
     {
-        var patient = await _patientService.GetByUserIdAsync(User.FindFirst("UserId") != null ? int.Parse(User.FindFirst("UserId")!.Value) : 0);
-        if (patient == null) return NotFound("Kein Patient verknüpft.");
-        return Ok(new { patient.Id, patient.FirstName, patient.LastName });
+        Console.WriteLine($"PatientsController.GetByUsername: Called with username={username}");
+
+        var userIdClaim = User.FindFirst("UserId");
+
+        if (userIdClaim == null)
+        {
+            Console.WriteLine("PatientsController.GetByUsername: UserId Claim fehlt");
+            return Unauthorized();
+        }
+
+        var patient = await _patientService.GetByUserIdAsync(
+            int.Parse(userIdClaim.Value));
+
+        if (patient == null)
+        {
+            Console.WriteLine("PatientsController.GetByUsername: Kein Patient gefunden");
+            return NotFound(new
+            {
+                message = "Kein Patient verknüpft."
+            });
+        }
+
+        Console.WriteLine($"PatientsController.GetByUsername: Found patient {patient.Id}");
+
+        return Ok(new
+        {
+            patient.Id,
+            patient.FirstName,
+            patient.LastName
+        });
     }
 }

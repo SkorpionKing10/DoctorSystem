@@ -1,32 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj": {}
+    "C:\\Users\\admin.mueller\\Desktop\\C#\\DoctorSystem\\Backend\\Backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj": {
+    "C:\\Users\\admin.mueller\\Desktop\\C#\\DoctorSystem\\Backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\admin.mueller\\Desktop\\C#\\DoctorSystem\\Backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\Backend.csproj",
-        "packagesPath": "C:\\Users\\valen\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\valen\\Desktop\\4BHIF\\CSharp\\Repo_Arztpraxis\\Backend\\obj\\",
+        "projectPath": "C:\\Users\\admin.mueller\\Desktop\\C#\\DoctorSystem\\Backend\\Backend.csproj",
+        "packagesPath": "C:\\Users\\admin.mueller\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\admin.mueller\\Desktop\\C#\\DoctorSystem\\Backend\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\valen\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\admin.mueller\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
