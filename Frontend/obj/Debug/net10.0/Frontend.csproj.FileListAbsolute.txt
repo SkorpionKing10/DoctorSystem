@@ -210,7 +210,6 @@ C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\scoped
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\scopedcss\Components\Layout\ReconnectModal.razor.rz.scp.css
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\scopedcss\bundle\Frontend.styles.css
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\scopedcss\projectbundle\Frontend.bundle.scp.css
-C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\compressed\4hytaxu7cz-{0}-bqm892skzv-bqm892skzv.gz
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\compressed\c24h1w6ub1-{0}-81hv9c04lr-81hv9c04lr.gz
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\compressed\gffyg97ye5-{0}-t1cqhe9u97-t1cqhe9u97.gz
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\compressed\ho1ex3mcbq-{0}-c2jlpeoesf-c2jlpeoesf.gz
@@ -272,3 +271,4 @@ C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\refint
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\Frontend.pdb
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\Frontend.genruntimeconfig.cache
 C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\ref\Frontend.dll
+C:\Users\admin.mueller\Desktop\C#\DoctorSystem\Frontend\obj\Debug\net10.0\compressed\4hytaxu7cz-{0}-7kl2romb4x-7kl2romb4x.gz

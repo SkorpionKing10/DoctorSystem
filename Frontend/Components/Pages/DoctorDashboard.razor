@@ -2,8 +2,8 @@
 @layout ProtectedLayout
 @using Frontend.Models
 @using Frontend.Services
-@inject IAuthService Auth
 @inject IAppointmentService AppointmentService
+@inject IAuthService Auth
 
 <div class="page-header">
     <h1>🩺 Doctor Dashboard</h1>
@@ -33,6 +33,13 @@ else
 
     <div class="section-title">Alle Termine</div>
 
+    @if (!string.IsNullOrEmpty(_message))
+    {
+        <div class="alert @(_success ? "alert-success" : "alert-error")">
+            @(_success ? "✅" : "⚠️") @_message
+        </div>
+    }
+
     @foreach (var a in appointments)
     {
         <div class="appointment-card">
@@ -50,18 +57,147 @@ else
                     @a.DoctorName
                 </div>
             </div>
+
             <span class="appt-badge @(a.IsCancelled ? "cancelled" : "")">
                 @(a.IsCancelled ? "Abgesagt" : "Bestätigt")
             </span>
+
+            <div style="display:flex; gap:8px; margin-left:12px;">
+                @if (!a.IsCancelled)
+                {
+                    <button class="appt-badge"
+                            @onclick="() => StartEdit(a)"
+                            disabled="@(_loadingId == a.Id)">
+                        ✏️ Bearbeiten
+                    </button>
+                    <button class="appt-badge cancelled"
+                            @onclick="() => CancelAppointment(a.Id)"
+                            disabled="@(_loadingId == a.Id)">
+                        @(_loadingId == a.Id ? "..." : "❌ Absagen")
+                    </button>
+                }
+                else
+                {
+                    <button class="appt-badge cancelled"
+                            @onclick="() => DeleteAppointment(a.Id)"
+                            disabled="@(_loadingId == a.Id)">
+                        @(_loadingId == a.Id ? "..." : "🗑️ Löschen")
+                    </button>
+                }
+            </div>
         </div>
+
+        @if (_editingId == a.Id)
+        {
+            <div class="form-card" style="margin: -8px 0 12px 0; border-radius:0 0 12px 12px;">
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:12px;">
+                    <div class="form-group" style="margin:0;">
+                        <label>Datum</label>
+                        <input type="date" class="form-input" @bind="_editDate" />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Uhrzeit</label>
+                        <input type="time" class="form-input" step="900" @bind="_editTime" />
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:18px;">
+                        <button class="btn-save" @onclick="SaveEdit">✅ Speichern</button>
+                        <button class="btn-cancel" @onclick="CancelEdit">❌ Abbrechen</button>
+                    </div>
+                </div>
+            </div>
+        }
     }
 }
 
 @code {
     List<AppointmentDto>? appointments;
+    string _message = "";
+    bool _success = false;
+
+    int _editingId = 0;
+    int _loadingId = 0;
+    DateTime _editDate = DateTime.Today;
+    TimeOnly _editTime;
 
     protected override async Task OnInitializedAsync()
     {
         appointments = await AppointmentService.GetAllAppointmentsAsync();
+    }
+
+    void StartEdit(AppointmentDto a)
+    {
+        _editingId = a.Id;
+        _editDate = a.Date;
+        _editTime = TimeOnly.FromTimeSpan(a.Time);
+        _message = "";
+    }
+
+    void CancelEdit()
+    {
+        _editingId = 0;
+        _message = "";
+    }
+
+    async Task SaveEdit()
+    {
+        var appt = appointments!.First(a => a.Id == _editingId);
+        appt.Date = _editDate;
+        appt.Time = _editTime.ToTimeSpan();
+
+        var success = await AppointmentService.UpdateAppointmentAsync(_editingId, appt);
+        if (success)
+        {
+            _message = "Termin erfolgreich aktualisiert.";
+            _success = true;
+            _editingId = 0;
+            appointments = await AppointmentService.GetAllAppointmentsAsync();
+        }
+        else
+        {
+            _message = "Fehler beim Speichern.";
+            _success = false;
+        }
+    }
+
+    async Task CancelAppointment(int id)
+    {
+        _loadingId = id;
+        _message = "";
+
+        var success = await AppointmentService.CancelAppointmentAsync(id);
+        if (success)
+        {
+            _message = "Termin erfolgreich abgesagt.";
+            _success = true;
+            appointments = await AppointmentService.GetAllAppointmentsAsync();
+        }
+        else
+        {
+            _message = "Fehler beim Absagen.";
+            _success = false;
+        }
+
+        _loadingId = 0;
+    }
+
+    async Task DeleteAppointment(int id)
+    {
+        _loadingId = id;
+        _message = "";
+
+        var success = await AppointmentService.DeleteAppointmentAsync(id);
+        if (success)
+        {
+            _message = "Termin gelöscht.";
+            _success = true;
+            appointments = await AppointmentService.GetAllAppointmentsAsync();
+        }
+        else
+        {
+            _message = "Fehler beim Löschen.";
+            _success = false;
+        }
+
+        _loadingId = 0;
     }
 }

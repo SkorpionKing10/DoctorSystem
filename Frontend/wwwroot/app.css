@@ -632,3 +632,32 @@ select.form-input {
     cursor: pointer;
     border-radius: 6px;
 }
+.btn-edit {
+    background: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.btn-edit:hover {
+    background: #3a5f95;
+}
+
+.btn-delete {
+    background: #e05c5c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.btn-delete:hover {
+    background: #c04a4a;
+}
