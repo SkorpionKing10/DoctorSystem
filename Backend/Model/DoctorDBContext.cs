@@ -31,5 +31,19 @@ public class DoctorDbContext : DbContext
         modelBuilder.Entity<User>()
             .Property(x => x.Role)
             .HasConversion<string>();
+
+        // ✅ TRIGGER-FIX: EF Core informieren dass Trigger existieren
+        modelBuilder.Entity<Appointment>()
+            .ToTable(tb =>
+            {
+                tb.HasTrigger("trg_Appointments_InsertLog");
+                tb.HasTrigger("trg_Appointments_StatusLog");
+            });
+
+        modelBuilder.Entity<Patient>()
+            .ToTable(tb =>
+            {
+                tb.HasTrigger("trg_Patients_AccountLog");
+            });
     }
 }
